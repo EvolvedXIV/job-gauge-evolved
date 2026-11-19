@@ -55,6 +55,29 @@ internal sealed class ShapeLibrary
     private readonly ConcurrentDictionary<string, byte> pending = new();
     private readonly HashSet<string> failed = new();
 
+    /// <summary>
+    /// The texture's pixels as 32-bit colour with alpha in the fourth byte: converted to B8G8R8A8, or as stored if the
+    /// conversion fails and the texture already is 32-bit (R8G8B8A8 and B8G8R8A8 both keep alpha there).
+    /// </summary>
+    private static async Task<(RawImageSpecification Spec, byte[] Pixels)> ReadPixels(
+        Dalamud.Interface.Textures.TextureWraps.IDalamudTextureWrap texture)
+    {
+        try {
+            return await Service.TextureReadbackProvider.GetRawImageAsync(
+                texture, new TextureModificationArgs { DxgiFormat = ReadbackFormat }, leaveWrapOpen: true);
+        }
+        catch (Exception e) {
+            Service.Log.Debug(e, "Reading a gauge texture back as B8G8R8A8 failed; trying its own format");
+            var (spec, pixels) = await Service.TextureReadbackProvider.GetRawImageAsync(
+                texture, new TextureModificationArgs(), leaveWrapOpen: true);
+            if (spec.BitsPerPixel != 32) {
+                throw new NotSupportedException($"Gauge texture format {spec.DxgiFormat} is not 32-bit colour");
+            }
+
+            return (spec, pixels);
+        }
+    }
+
     public ShapeLibrary(ArtAtlas atlas)
     {
         this.atlas = atlas;
@@ -92,8 +115,8 @@ internal sealed class ShapeLibrary
             return;
         }
 
-        // The sharpest image below 3x is plenty for an outline.
-        var scale = Math.Min(2, atlas.Layout.Scales[^1]);
+        // The sharpest image, for the most precise outline (it is traced once).
+        var scale = atlas.Layout.Scales[^1];
         if (!atlas.TryGetTexture(layer, scale, out var texture)) {
             pending.TryRemove(layer, out _);
             return;
@@ -103,12 +126,12 @@ internal sealed class ShapeLibrary
         _ = Task.Run(async () =>
         {
             try {
-                var (spec, pixels) = await Service.TextureReadbackProvider.GetRawImageAsync(
-                    texture, new TextureModificationArgs { DxgiFormat = ReadbackFormat }, leaveWrapOpen: true);
+                var (spec, pixels) = await ReadPixels(texture);
                 var pixelsPerUnit = spec.Width / box.W;
                 var outlines = new List<Vector2[]>();
                 foreach (var traced in Outline.Trace(pixels, spec.Width, spec.Height, spec.Pitch)) {
-                    var simple = Outline.Simplify(traced, 0.5f);
+                    // A quarter of a gauge unit of detail is plenty for a glow.
+                    var simple = Outline.Simplify(traced, 0.25f * pixelsPerUnit);
                     for (var i = 0; i < simple.Length; i++) {
                         simple[i] = box.Min + simple[i] / pixelsPerUnit;
                     }
