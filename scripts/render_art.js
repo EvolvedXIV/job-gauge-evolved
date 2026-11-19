@@ -102,15 +102,24 @@ async function renderInPage({ svgText, scales, pad }) {
   const layers = {};
   for (const g of root.querySelectorAll('[data-layer]')) {
     const name = g.getAttribute('data-layer');
-    const box = boundsOf(await rasterize(name, maxScale), maxScale);
+    const full = await rasterize(name, maxScale);
+    const box = boundsOf(full, maxScale);
+    // Rendered once at the largest scale and scaled down for the others: SVG lighting filters work per device
+    // pixel, so rendering each scale separately would make bevels look different at each size.
+    const master = document.createElement('canvas');
+    master.width = box.w * maxScale;
+    master.height = box.h * maxScale;
+    master.getContext('2d').drawImage(full, (box.x + pad) * maxScale, (box.y + pad) * maxScale, master.width,
+      master.height, 0, 0, master.width, master.height);
     for (const scale of scales) {
-      const full = await rasterize(name, scale);
-      const crop = document.createElement('canvas');
-      crop.width = box.w * scale;
-      crop.height = box.h * scale;
-      crop.getContext('2d').drawImage(full, (box.x + pad) * scale, (box.y + pad) * scale, crop.width, crop.height,
-        0, 0, crop.width, crop.height);
-      files.push({ name: `${name}@${scale}x.png`, base64: crop.toDataURL('image/png').split(',')[1] });
+      const out = document.createElement('canvas');
+      out.width = box.w * scale;
+      out.height = box.h * scale;
+      const ctx = out.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(master, 0, 0, out.width, out.height);
+      files.push({ name: `${name}@${scale}x.png`, base64: out.toDataURL('image/png').split(',')[1] });
     }
     layers[name] = { ...box, kind: g.getAttribute('data-kind') || 'color', slot: g.getAttribute('data-slot') || null };
   }

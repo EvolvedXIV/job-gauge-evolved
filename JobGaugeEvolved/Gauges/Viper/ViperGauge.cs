@@ -165,20 +165,30 @@ internal sealed unsafe class ViperGauge : IJobGauge
             }
         }
 
-        // Serpent Offerings vessel.
+        // Serpent Offerings: the orb fills from the bottom; 50 (enough to Reawaken) is the equator.
         var hasOfferings = ViperLogic.HasSerpentOfferings(s.Level);
         canvas.Layer(ViperLayers.VesselBack);
         if (hasOfferings) {
             var fill = Math.Clamp(s.SerpentOffering / (float)ViperIds.SerpentOfferingMax, 0f, 1f);
-            canvas.Layer(ViperLayers.Liquid, config.LiquidColor, cropRight: fill);
-            if (fill is > 0.04f and < 0.97f) {
+            if (fill > 0f) {
                 var liquid = layout.Anchor(ViperLayers.LiquidAnchor);
-                var wobble = config.AnimateGlow ? (float)Math.Sin(time * 3.1) * 0.6f : 0f;
-                var edgeX = liquid.X + fill * liquid.W - Centre.X + wobble;
-                canvas.Layer(ViperLayers.LiquidEdge, config.LiquidColor, 0.9f, offset: new Vector2(edgeX, 0));
+                var level = liquid.Y + liquid.H * (1f - fill);
+                var body = layout.Layer(ViperLayers.Liquid).Box;
+                canvas.Layer(ViperLayers.Liquid, config.LiquidColor, cropTop: (level - body.Y) / body.H);
+
+                // The surface sits at the level, as wide as the glass is there.
+                if (fill < 0.98f) {
+                    var radius = liquid.W / 2f;
+                    var fromCentre = level - (liquid.Y + liquid.H / 2f);
+                    var halfChord = MathF.Sqrt(MathF.Max(0f, radius * radius - fromCentre * fromCentre));
+                    var bob = config.AnimateGlow ? (float)Math.Sin(time * 2.3) * 0.35f : 0f;
+                    canvas.Layer(ViperLayers.LiquidSurface, config.LiquidColor, 0.9f,
+                        offset: new Vector2(0f, fromCentre + bob), widthScale: halfChord / radius);
+                }
             }
         }
 
+        canvas.Layer(ViperLayers.VesselGlass);
         canvas.Layer(ViperLayers.VesselFrame);
         if (h.Center) {
             canvas.Layer(ViperLayers.VesselRim, config.RearColor, Pulse(0));

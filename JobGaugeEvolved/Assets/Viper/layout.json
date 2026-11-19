@@ -1,7 +1,7 @@
 {
   "version": 1,
   "width": 320,
-  "height": 100,
+  "height": 120,
   "scales": [
     1,
     2,
@@ -9,122 +9,130 @@
   ],
   "layers": {
     "blade-halo": {
-      "x": -6,
-      "y": 34,
-      "w": 118,
-      "h": 48,
+      "x": -5,
+      "y": 46,
+      "w": 109,
+      "h": 40,
       "kind": "mask",
       "slot": null
     },
     "blade-base": {
-      "x": 3,
-      "y": 47,
-      "w": 96,
-      "h": 22,
+      "x": 2,
+      "y": 36,
+      "w": 127,
+      "h": 60,
       "kind": "color",
       "slot": null
     },
     "blade-tint": {
-      "x": 3,
-      "y": 47,
-      "w": 96,
-      "h": 22,
+      "x": 1,
+      "y": 56,
+      "w": 93,
+      "h": 20,
       "kind": "mask",
       "slot": null
     },
     "vessel-halo": {
-      "x": 82,
-      "y": 24,
-      "w": 156,
-      "h": 68,
+      "x": 114,
+      "y": 12,
+      "w": 92,
+      "h": 108,
       "kind": "mask",
       "slot": null
     },
     "vessel-back": {
-      "x": 111,
-      "y": 49,
-      "w": 98,
-      "h": 18,
-      "kind": "color",
-      "slot": null
-    },
-    "liquid": {
-      "x": 111,
-      "y": 49,
-      "w": 98,
-      "h": 18,
-      "kind": "mask",
-      "slot": null
-    },
-    "liquid-edge": {
-      "x": 157,
-      "y": 47,
-      "w": 8,
-      "h": 22,
-      "kind": "mask",
-      "slot": null
-    },
-    "vessel-frame": {
-      "x": 95,
-      "y": 33,
-      "w": 130,
+      "x": 135,
+      "y": 41,
+      "w": 50,
       "h": 50,
       "kind": "color",
       "slot": null
     },
+    "liquid": {
+      "x": 135,
+      "y": 41,
+      "w": 50,
+      "h": 50,
+      "kind": "mask",
+      "slot": null
+    },
+    "liquid-surface": {
+      "x": 134,
+      "y": 62,
+      "w": 52,
+      "h": 8,
+      "kind": "mask",
+      "slot": null
+    },
+    "vessel-glass": {
+      "x": 135,
+      "y": 41,
+      "w": 50,
+      "h": 50,
+      "kind": "color",
+      "slot": null
+    },
+    "vessel-frame": {
+      "x": 114,
+      "y": 18,
+      "w": 92,
+      "h": 96,
+      "kind": "color",
+      "slot": null
+    },
     "vessel-rim": {
-      "x": 95,
-      "y": 32,
-      "w": 130,
-      "h": 52,
+      "x": 119,
+      "y": 17,
+      "w": 82,
+      "h": 98,
       "kind": "mask",
       "slot": null
     },
     "gem-socket": {
-      "x": 150,
-      "y": 23,
-      "w": 20,
-      "h": 22,
+      "x": 153,
+      "y": 18,
+      "w": 14,
+      "h": 14,
       "kind": "color",
       "slot": "gem"
     },
     "gem-halo": {
-      "x": 147,
-      "y": 21,
-      "w": 26,
-      "h": 26,
+      "x": 148,
+      "y": 13,
+      "w": 24,
+      "h": 24,
       "kind": "mask",
       "slot": "gem"
     },
     "gem-lit": {
       "x": 154,
-      "y": 27,
+      "y": 19,
       "w": 12,
-      "h": 14,
+      "h": 12,
       "kind": "mask",
       "slot": "gem"
     },
     "coil-socket": {
-      "x": 152,
-      "y": 74,
-      "w": 16,
-      "h": 18,
+      "x": 153,
+      "y": 100,
+      "w": 14,
+      "h": 14,
       "kind": "color",
       "slot": "coil"
     },
     "coil-halo": {
-      "x": 152,
-      "y": 75,
-      "w": 16,
-      "h": 16,
+      "x": 147,
+      "y": 94,
+      "w": 26,
+      "h": 26,
       "kind": "mask",
       "slot": "coil"
     },
     "coil-lit": {
       "x": 155,
-      "y": 78,
+      "y": 102,
       "w": 10,
-      "h": 10,
+      "h": 11,
       "kind": "mask",
       "slot": "coil"
     }
@@ -132,33 +140,35 @@
   "anchors": {
     "centre": {
       "x": 160,
-      "y": 58
+      "y": 66
     },
     "gem": {
       "x": 160,
-      "y": 34,
-      "spacing": 18
+      "y": 25,
+      "radius": 41,
+      "step": 21
     },
     "coil": {
       "x": 160,
-      "y": 83,
-      "spacing": 16
+      "y": 107,
+      "radius": -41,
+      "step": 20
     },
     "value": {
       "x": 160,
-      "y": 58,
+      "y": 66,
       "height": 14
     },
     "timer": {
       "x": 160,
-      "y": 15,
-      "height": 13
+      "y": 9,
+      "height": 12
     },
     "liquid": {
-      "x": 111,
-      "y": 49,
-      "w": 98,
-      "h": 18
+      "x": 135,
+      "y": 41,
+      "w": 50,
+      "h": 50
     }
   }
 }

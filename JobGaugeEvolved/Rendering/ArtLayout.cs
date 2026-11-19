@@ -114,11 +114,22 @@ internal sealed class ArtLayout
     }
 
     /// <summary>
-    /// Offset of slot <paramref name="index"/> of <paramref name="count"/> from the anchor's reference slot: the
-    /// slots are spaced evenly and centred on the anchor.
+    /// Offset of slot <paramref name="index"/> of <paramref name="count"/> from the anchor's reference slot, centred
+    /// on it. With a <c>radius</c> the slots follow an arc, <c>step</c> degrees apart, around a point that far below
+    /// the reference slot (above it for a negative radius); otherwise they sit in a row, <c>spacing</c> apart.
     /// </summary>
-    public Vector2 SlotOffset(string slot, int index, int count) =>
-        new((index - (count - 1) / 2f) * Anchor(slot).Value("spacing"), 0f);
+    public Vector2 SlotOffset(string slot, int index, int count)
+    {
+        var anchor = Anchor(slot);
+        var position = index - (count - 1) / 2f;
+        var radius = anchor.Value("radius");
+        if (radius == 0f) {
+            return new Vector2(position * anchor.Value("spacing"), 0f);
+        }
+
+        var angle = position * anchor.Value("step") * MathF.PI / 180f;
+        return new Vector2(MathF.Abs(radius) * MathF.Sin(angle), radius * (1f - MathF.Cos(angle)));
+    }
 
     /// <summary>
     /// Everything the gauge can draw: every layer (mirrored ones twice, slot layers spread over their most slots)
@@ -132,8 +143,9 @@ internal sealed class ArtLayout
         foreach (var layer in Layers.Values) {
             if (layer.Slot is { } slot) {
                 var count = Math.Max(1, maxSlots(slot));
-                Add(layer.Box.Offset(SlotOffset(slot, 0, count)));
-                Add(layer.Box.Offset(SlotOffset(slot, count - 1, count)));
+                for (var i = 0; i < count; i++) {
+                    Add(layer.Box.Offset(SlotOffset(slot, i, count)));
+                }
             }
             else {
                 Add(layer.Box);

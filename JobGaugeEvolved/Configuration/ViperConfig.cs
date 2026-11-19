@@ -34,9 +34,9 @@ public sealed class ViperConfig : GaugeConfig
 
     public static ColorSpec DefaultLiquid() => new(ColorSpec.Hex("#3F94FF"));
 
-    public static ColorSpec DefaultTribute() => new(ColorSpec.Hex("#59B8FF"));
+    public static ColorSpec DefaultTribute() => new(ColorSpec.Hex("#4FA8FF"));
 
-    public static ColorSpec DefaultCoil() => new(ColorSpec.Hex("#40D9C0"));
+    public static ColorSpec DefaultCoil() => new(ColorSpec.Hex("#FF2B3D"));
 
     public override void Sanitize()
     {

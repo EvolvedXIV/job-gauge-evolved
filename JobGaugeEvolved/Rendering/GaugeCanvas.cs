@@ -40,15 +40,16 @@ internal readonly struct GaugeCanvas
     /// <param name="name">Layer name from layout.json.</param>
     /// <param name="color">Colour for mask layers (null draws the art as is).</param>
     /// <param name="alpha">Opacity, multiplied into the colour.</param>
-    /// <param name="mirror">Reflect it around the middle of the canvas (the right blade).</param>
-    /// <param name="cropRight">Draw only this fraction of it, from the left (the liquid's fill level).</param>
-    /// <param name="offset">Move it by this many units (gem and coil slots).</param>
-    public void Layer(string name, ColorSpec? color = null, float alpha = 1f, bool mirror = false, float cropRight = 1f,
-        Vector2 offset = default)
+    /// <param name="mirror">Reflect it around the middle of the canvas (the right half of the twinblade).</param>
+    /// <param name="cropTop">Leave out this fraction of it from the top (a level filling from the bottom).</param>
+    /// <param name="offset">Move it by this many units (stone slots, the liquid surface).</param>
+    /// <param name="widthScale">Narrow or widen it around its centre (the liquid surface inside the orb).</param>
+    public void Layer(string name, ColorSpec? color = null, float alpha = 1f, bool mirror = false, float cropTop = 0f,
+        Vector2 offset = default, float widthScale = 1f)
     {
-        cropRight = Math.Clamp(cropRight, 0f, 1f);
+        cropTop = Math.Clamp(cropTop, 0f, 1f);
         alpha = Math.Clamp(alpha, 0f, 1f);
-        if (cropRight <= 0f || alpha <= 0f || !atlas.TryGetTexture(name, resolution, out var texture)) {
+        if (cropTop >= 1f || alpha <= 0f || widthScale <= 0f || !atlas.TryGetTexture(name, resolution, out var texture)) {
             return;
         }
 
@@ -57,14 +58,21 @@ internal readonly struct GaugeCanvas
             box = box.Mirror(atlas.Layout.Width);
         }
 
-        var min = ToScreen(box.Min);
-        var max = min + new Vector2(box.W * cropRight, box.H) * Scale;
+        if (widthScale != 1f) {
+            var width = box.W * widthScale;
+            box = box with { X = box.X + (box.W - width) / 2f, W = width };
+        }
 
-        // Texture coordinates: crop keeps the left part; a mirrored layer reads the texture right to left.
+        var min = ToScreen(new Vector2(box.X, box.Y + box.H * cropTop));
+        var max = ToScreen(new Vector2(box.Right, box.Bottom));
+
+        // Texture coordinates: a crop keeps the bottom part; a mirrored layer reads the texture right to left.
         var u0 = mirror ? 1f : 0f;
-        var u1 = mirror ? 1f - cropRight : cropRight;
+        var u1 = mirror ? 0f : 1f;
+        var v0 = cropTop;
 
-        var (tl, tr, br, bl) = color?.Corners(0f, cropRight) ?? (White, White, White, White);
+        // The colour is spread over the whole layer, so a cropped layer shows its slice of a gradient.
+        var (tl, tr, br, bl) = color?.Corners(0f, 1f, cropTop, 1f) ?? (White, White, White, White);
 
         drawList.PushTextureID(texture.Handle);
         drawList.PrimReserve(6, 4);
@@ -75,8 +83,8 @@ internal readonly struct GaugeCanvas
         drawList.PrimWriteIdx((ushort)index);
         drawList.PrimWriteIdx((ushort)(index + 2));
         drawList.PrimWriteIdx((ushort)(index + 3));
-        drawList.PrimWriteVtx(min, new Vector2(u0, 0f), ColorSpec.Pack(tl, alpha));
-        drawList.PrimWriteVtx(new Vector2(max.X, min.Y), new Vector2(u1, 0f), ColorSpec.Pack(tr, alpha));
+        drawList.PrimWriteVtx(min, new Vector2(u0, v0), ColorSpec.Pack(tl, alpha));
+        drawList.PrimWriteVtx(new Vector2(max.X, min.Y), new Vector2(u1, v0), ColorSpec.Pack(tr, alpha));
         drawList.PrimWriteVtx(max, new Vector2(u1, 1f), ColorSpec.Pack(br, alpha));
         drawList.PrimWriteVtx(new Vector2(min.X, max.Y), new Vector2(u0, 1f), ColorSpec.Pack(bl, alpha));
         drawList.PopTextureID();

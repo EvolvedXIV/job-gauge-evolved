@@ -8,9 +8,10 @@ and turned on or off per job.
 
 ### Viper
 
-The Vipersight blades and the Serpent Offerings gauge in one twinblade: a straight sword points out to each side,
-and their joined hilt in the middle is the Serpent Offerings vessel, with the Anguine Tribute gems on top of it and
-the Rattling Coils underneath. The left blade stands for
+The Vipersight blades and the Serpent Offerings gauge in one twinblade of blackened, engraved Gothic ironwork: a
+straight sword points out to each side, and their hilts meet at a glass orb in the middle, the Serpent Offerings
+vessel, which fills with liquid from the bottom (50, enough to Reawaken, is the equator). An arched band over the
+orb holds the Anguine Tribute stones and a band under it the Rattling Coil rubies, each set into the metal. The left blade stands for
 the Steel Fangs button, the right blade for the Reaving Fangs button.
 
 | Combo step | What lights up |
@@ -20,8 +21,8 @@ the Steel Fangs button, the right blade for the Reaving Fangs button.
 | 3. Flank finisher (after Hunter's Sting) | Both blades in the flank colour (green → yellow). The blade of the finisher your venom empowers is brighter: Flankstung → left (Flanksting Strike), Flanksbane → right (Flanksbane Fang). |
 | 3. Rear finisher (after Swiftskin's Sting) | The vessel in the rear colour (red → yellow), plus the blade of the empowered finisher: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). |
 
-The area-of-effect combo doesn't change the blades. The tribute gems light up only while Reawakened, with the time
-left shown above them. The gauge value is shown on the vessel.
+The area-of-effect combo doesn't change the blades. The tribute stones light up only while Reawakened, with the time
+left shown above them; the rubies glow for each Rattling Coil you have. The gauge value is shown on the orb.
 
 Colours you can change: recommended blade, flank, rear, liquid, tributes and coils. Each is a single colour or a
 two-colour gradient across the shape (top to bottom or left to right).

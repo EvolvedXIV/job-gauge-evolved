@@ -87,6 +87,7 @@ public class PlacementAndConfigTests
         Assert.True(config.RearColor.A.X > config.RearColor.A.Y, "rear starts red");
         Assert.True(config.LiquidColor.A.Z > config.LiquidColor.A.X, "liquid is blue");
         Assert.True(config.TributeColor.A.Z > config.TributeColor.A.X, "tributes are blue");
+        Assert.True(config.CoilColor.A.X > 0.9f && config.CoilColor.A.Y < 0.3f, "coils are rubies");
         Assert.True(config.HideGameGauge);
         Assert.Equal(1f, config.Size);
     }

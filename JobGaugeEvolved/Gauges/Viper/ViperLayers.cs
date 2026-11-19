@@ -9,7 +9,8 @@ internal static class ViperLayers
     public const string VesselHalo = "vessel-halo";
     public const string VesselBack = "vessel-back";
     public const string Liquid = "liquid";
-    public const string LiquidEdge = "liquid-edge";
+    public const string LiquidSurface = "liquid-surface";
+    public const string VesselGlass = "vessel-glass";
     public const string VesselFrame = "vessel-frame";
     public const string VesselRim = "vessel-rim";
     public const string GemSocket = "gem-socket";
@@ -29,12 +30,12 @@ internal static class ViperLayers
 
     public static readonly string[] All =
     [
-        BladeHalo, BladeBase, BladeTint, VesselHalo, VesselBack, Liquid, LiquidEdge, VesselFrame, VesselRim,
+        BladeHalo, BladeBase, BladeTint, VesselHalo, VesselBack, Liquid, LiquidSurface, VesselGlass, VesselFrame, VesselRim,
         GemSocket, GemHalo, GemLit, CoilSocket, CoilHalo, CoilLit,
     ];
 
     public static readonly string[] Anchors = [CentreAnchor, LiquidAnchor, ValueAnchor, TimerAnchor, GemSlot, CoilSlot];
 
-    /// <summary>Layers drawn twice, the second time mirrored (the right blade).</summary>
+    /// <summary>Layers drawn twice, the second time mirrored (the right blade, guard and grip).</summary>
     public static bool IsMirrored(string layer) => layer is BladeHalo or BladeBase or BladeTint;
 }
