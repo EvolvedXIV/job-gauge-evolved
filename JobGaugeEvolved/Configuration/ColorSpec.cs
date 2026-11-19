@@ -53,18 +53,22 @@ public sealed class ColorSpec
     /// Corner colours (top left, top right, bottom right, bottom left) for a quad that covers the part of the shape
     /// from <paramref name="x0"/> to <paramref name="x1"/> horizontally and <paramref name="y0"/> to
     /// <paramref name="y1"/> vertically, in fractions of the whole shape. A cropped quad (a partly filled bar) thus
-    /// shows its slice of the full gradient rather than the whole gradient squeezed.
+    /// shows its slice of the full gradient rather than the whole gradient squeezed. For a <paramref name="mirrored"/>
+    /// shape a left-to-right gradient runs right to left, so it goes the same way along both halves of a symmetric
+    /// gauge (tip to hilt on both blades).
     /// </summary>
     public (Vector4 TopLeft, Vector4 TopRight, Vector4 BottomRight, Vector4 BottomLeft) Corners(
-        float x0 = 0f, float x1 = 1f, float y0 = 0f, float y1 = 1f)
+        float x0 = 0f, float x1 = 1f, float y0 = 0f, float y1 = 1f, bool mirrored = false)
     {
         if (Mode == ColorMode.Single) {
             return (A, A, A, A);
         }
 
-        return Direction == GradientDirection.TopToBottom
-            ? (At(y0), At(y0), At(y1), At(y1))
-            : (At(x0), At(x1), At(x1), At(x0));
+        if (Direction == GradientDirection.TopToBottom) {
+            return (At(y0), At(y0), At(y1), At(y1));
+        }
+
+        return mirrored ? (At(x1), At(x0), At(x0), At(x1)) : (At(x0), At(x1), At(x1), At(x0));
     }
 
     public ColorSpec Clone() => new() { Mode = Mode, A = A, B = B, Direction = Direction };

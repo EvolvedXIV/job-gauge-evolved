@@ -71,8 +71,9 @@ internal readonly struct GaugeCanvas
         var u1 = mirror ? 0f : 1f;
         var v0 = cropTop;
 
-        // The colour is spread over the whole layer, so a cropped layer shows its slice of a gradient.
-        var (tl, tr, br, bl) = color?.Corners(0f, 1f, cropTop, 1f) ?? (White, White, White, White);
+        // The colour is spread over the whole layer, so a cropped layer shows its slice of a gradient, and a
+        // mirrored layer mirrors a left-to-right gradient too (tip to hilt on both blades).
+        var (tl, tr, br, bl) = color?.Corners(0f, 1f, cropTop, 1f, mirror) ?? (White, White, White, White);
 
         drawList.PushTextureID(texture.Handle);
         drawList.PrimReserve(6, 4);

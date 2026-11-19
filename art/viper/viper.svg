@@ -1,262 +1,222 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Job Gauge Evolved - Viper gauge art (original artwork, modelled on the game's Vipersight and Serpent Offerings
-  gauges combined into one twinblade).
+  Job Gauge Evolved - Viper gauge art (original artwork, after the game's Vipersight and Serpent Offerings gauges,
+  combined into one twinblade).
 
-  A straight sword points out to each side. Their hilts meet at a glass orb in the middle: the Serpent Offerings
-  vessel, which fills with liquid from the bottom. An arched band over the orb holds the Anguine Tribute stones,
-  a band under it the Rattling Coil rubies, both set into the metal. Blackened, engraved Gothic ironwork.
+  Long straight blades point out to each side from spiked Gothic hilts. The hilts meet at a glass orb, the Serpent
+  Offerings vessel, held in a silver ring with a serpent rising on each side. A row of tribute coins sits on top of
+  the orb; the three Rattling Coil diamonds hang below it in lozenge frames, between two leather banners.
 
-  Gauge units: 320 x 120; the gauge's centre (and the orb's) is (160, 66). At 100% size one unit is one pixel.
-  Each <g data-layer="..."> is rendered to its own PNG by scripts/render_art.js:
-    data-kind="color"  drawn as is
-    data-kind="mask"   white/grey, multiplied by a colour setting at draw time
-  Layers marked data-slot are drawn once per stone, moved from their reference slot along an arc (see #anchors).
-  The blade layers (blade, guard and grip of the left half) are mirrored around x = 160 for the right half, so
-  their lighting comes straight from above.
+  Gauge units: 360 x 160; the gauge's centre (and the orb's) is (180, 76). At 100% size one unit is one pixel.
+  Built by scripts/build_art.py:
+    <g data-layer="x">                   the layer's colours (data-kind="mask": white/grey, coloured at draw time)
+    <g data-layer="x" data-pass="height"> its height map (white = high); with it, the layer is lit as data-shade
+    <g data-layer="x" data-pass="glow">   painted on top unlit (eyes)
+  Layers marked data-slot are drawn once per coin/diamond, moved from their reference slot (see #anchors).
+    <g data-layer="x" data-pass="matte">  where it is dull rather than shiny (leather)
+  The blade layers (blade, hilt and serpent of the left half) are mirrored around x = 180 for the right half.
 -->
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="120" viewBox="0 0 320 120">
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="160" viewBox="0 0 360 160">
   <defs>
-    <!-- ===== Filters ===== -->
-    <filter id="blur1" filterUnits="userSpaceOnUse" x="-60" y="-60" width="440" height="240"><feGaussianBlur stdDeviation="1.2"/></filter>
-    <filter id="blur3" filterUnits="userSpaceOnUse" x="-60" y="-60" width="440" height="240"><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="blur6" filterUnits="userSpaceOnUse" x="-60" y="-60" width="440" height="240"><feGaussianBlur stdDeviation="6"/></filter>
-    <filter id="soft" filterUnits="userSpaceOnUse" x="-60" y="-60" width="440" height="240"><feGaussianBlur stdDeviation="0.5"/></filter>
-
-    <!-- Raised, lit metal: the shape's alpha becomes a height map lit from straight above. -->
-    <filter id="metal" filterUnits="userSpaceOnUse" x="-60" y="-60" width="440" height="240" color-interpolation-filters="sRGB">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="height"/>
-      <feDiffuseLighting in="height" surfaceScale="2.4" diffuseConstant="1.15" lighting-color="#ffffff" result="diffuse">
-        <feDistantLight azimuth="270" elevation="50"/>
-      </feDiffuseLighting>
-      <feSpecularLighting in="height" surfaceScale="2.4" specularConstant="1.1" specularExponent="34" lighting-color="#dfe5ee" result="specular">
-        <feDistantLight azimuth="270" elevation="38"/>
-      </feSpecularLighting>
-      <feComposite in="SourceGraphic" in2="diffuse" operator="arithmetic" k1="1" result="shaded"/>
-      <feComposite in="specular" in2="SourceAlpha" operator="in" result="specularIn"/>
-      <feComposite in="shaded" in2="specularIn" operator="arithmetic" k2="1" k3="0.6" result="lit"/>
-      <feComposite in="lit" in2="SourceAlpha" operator="in"/>
-    </filter>
-
-    <!-- Brushed steel grain, along the blade. -->
-    <filter id="brushed" filterUnits="userSpaceOnUse" x="0" y="50" width="100" height="32" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.9" numOctaves="2" seed="7" result="noise"/>
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 -0.2"/>
-    </filter>
-
-    <!-- Wisps inside the liquid. -->
-    <filter id="wisps" filterUnits="userSpaceOnUse" x="130" y="36" width="60" height="60" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.07 0.11" numOctaves="3" seed="3" result="noise"/>
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -0.62"/>
-    </filter>
-
-    <!-- Mottling for the tribute stones. -->
-    <filter id="mottle" filterUnits="userSpaceOnUse" x="150" y="15" width="20" height="20" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.45" numOctaves="2" seed="11" result="noise"/>
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0.2  0 0 0 0 0.2  0 0 0 0 0.2  0 0 0 1.2 -0.45"/>
+    <filter id="hb" filterUnits="userSpaceOnUse" x="-60" y="-60" width="480" height="280"><feGaussianBlur stdDeviation="0.35"/></filter>
+    <filter id="hb2" filterUnits="userSpaceOnUse" x="-60" y="-60" width="480" height="280"><feGaussianBlur stdDeviation="0.8"/></filter>
+    <filter id="soft" filterUnits="userSpaceOnUse" x="-60" y="-60" width="480" height="280"><feGaussianBlur stdDeviation="0.6"/></filter>
+    <filter id="blur2" filterUnits="userSpaceOnUse" x="-60" y="-60" width="480" height="280"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="blur4" filterUnits="userSpaceOnUse" x="-60" y="-60" width="480" height="280"><feGaussianBlur stdDeviation="4"/></filter>
+    <filter id="blur7" filterUnits="userSpaceOnUse" x="-60" y="-60" width="480" height="280"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="wisps" filterUnits="userSpaceOnUse" x="150" y="46" width="60" height="60" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.06 0.14" numOctaves="3" seed="5"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.5 -0.6"/>
     </filter>
 
     <!-- ===== Shapes ===== -->
-    <!-- Left blade: straight and double-edged, its tip at the far left, its base against the guard. -->
-    <path id="blade" d="M92 58.5 L27 58.5 Q14 61 3 66 Q14 71 27 73.5 L92 73.5 Z"/>
-    <path id="bladeUpper" d="M92 58.5 L27 58.5 Q14 61 3 66 L92 66 Z"/>
-    <clipPath id="bladeClip"><use href="#blade"/></clipPath>
+    <!-- Left blade: long, straight, double-edged, a chisel point at the far left. -->
+    <path id="blade" d="M104 70 L26 70 L4 76 L26 82 L104 82 Z"/>
+    <path id="bladeTop" d="M104 70 L26 70 L4 76 L104 76 Z"/>
 
-    <!-- Left crossguard: spikes up and down from a central boss, Gothic finials. -->
-    <path id="guard" d="
-      M98 36 L100.6 44.5 L101.6 52 Q103.6 53.5 102.6 56 L102.6 59.5 L95.4 59.5 L95.4 56 Q94.4 53.5 96.4 52 L97.4 44.5 Z
-      M98 96 L100.6 87.5 L101.6 80 Q103.6 78.5 102.6 76 L102.6 72.5 L95.4 72.5 L95.4 76 Q94.4 78.5 96.4 80 L97.4 87.5 Z"/>
-    <circle id="boss" cx="98" cy="66" r="7.6"/>
-    <path id="guardWings" d="M90.5 61 L94 58.6 L94 73.4 L90.5 71 Z"/>
+    <!-- Spiked collar at the blade's base. -->
+    <path id="collar" d="M100 67.5 L118 67.5 L118 84.5 L100 84.5 Z"/>
+    <path id="collarSpikes" d="
+      M102 67.5 L103.6 60 L105.2 67.5 Z M107 67.5 L109 56.5 L111 67.5 Z M112.6 67.5 L114.2 61 L115.8 67.5 Z
+      M102 84.5 L103.6 92 L105.2 84.5 Z M107 84.5 L109 95.5 L111 84.5 Z M112.6 84.5 L114.2 91 L115.8 84.5 Z"/>
+    <!-- Crossguard post with diamond knobs and a knot in the middle. -->
+    <rect id="post" x="120.3" y="52" width="3.4" height="48" rx="1"/>
+    <path id="postKnobs" d="M122 45 L125.3 50 L122 55 L118.7 50 Z M122 97 L125.3 102 L122 107 L118.7 102 Z M122 69 L126.4 76 L122 83 L117.6 76 Z"/>
+    <!-- Connector from the guard into the orb's ring. -->
+    <rect id="connector" x="124" y="71.5" width="30" height="9" rx="2"/>
+    <!-- Serpent: body rising behind the hilt along the ring, head turned out towards the blade. -->
+    <path id="serpentBody" d="M157 104 C149 97 144.5 88 145 76 C145.5 64 148.5 57 150 51.5 C150.8 48.4 149 46.2 146 45.4"/>
+    <path id="serpentHead" d="M147.6 41.8 C142.6 41 137.4 41.6 133.2 44 C131.9 44.8 131.9 46.2 133.2 47 C137.4 49.4 142.6 50 147.6 49.2 C149.6 48 149.6 43 147.6 41.8 Z"/>
+    <!-- Leather banner hanging beside the diamonds. -->
+    <path id="banner" d="M145 108 L156 108 L156 140 L150.5 144 L145 140 Z"/>
 
-    <!-- Left grip, from the guard into the orb's ring. -->
-    <rect id="grip" x="103" y="61" width="26" height="10" rx="2"/>
-
-    <!-- The orb: glass of radius 25 inside an iron ring. -->
-    <circle id="glass" cx="160" cy="66" r="25"/>
+    <!-- The orb: glass of radius 23 inside a silver ring (outer radius 30). -->
+    <circle id="glass" cx="180" cy="76" r="23"/>
     <clipPath id="glassClip"><use href="#glass"/></clipPath>
-    <path id="ring" fill-rule="evenodd" d="M160 33 A33 33 0 1 1 159.99 33 Z M160 41 A25 25 0 1 0 160.01 41 Z"/>
+    <path id="ring" fill-rule="evenodd" d="M180 46 A30 30 0 1 1 179.99 46 Z M180 53 A23 23 0 1 0 180.01 53 Z"/>
+    <!-- Bars that carry the coins (top) and the diamonds (bottom). -->
+    <rect id="coinBar" x="146" y="38.5" width="68" height="6.5" rx="3"/>
+    <rect id="diamondBar" x="152" y="105" width="56" height="6" rx="3"/>
+    <path id="fleurTop" d="M180 41 L184.6 46.5 L182.2 49.2 L180 54 L177.8 49.2 L175.4 46.5 Z"/>
+    <path id="fleurBottom" d="M180 111 L184.6 105.5 L182.2 102.8 L180 98 L177.8 102.8 L175.4 105.5 Z"/>
+    <path id="sideCross" d="M152.6 76 L156 72.4 L159.4 76 L156 79.6 Z"/>
+    <path id="pendant" d="M180 136 L183 142 L180 158 L177 142 Z"/>
 
-    <!-- Arched bands for the stones: tributes over the orb, coils under it. -->
-    <path id="bandTop" d="M120.2 39.2 A48 48 0 0 1 199.8 39.2 L187.4 47.5 A33 33 0 0 0 132.6 47.5 Z"/>
-    <path id="bandBottom" d="M130.4 103.8 A48 48 0 0 0 189.6 103.8 L180.3 92 A33 33 0 0 1 139.7 92 Z"/>
-    <clipPath id="bandTopClip"><use href="#bandTop"/></clipPath>
-    <clipPath id="bandBottomClip"><use href="#bandBottom"/></clipPath>
+    <!-- Coin (tribute) and lozenge (coil), at their reference slots. -->
+    <circle id="coin" cx="180" cy="33" r="6.5"/>
+    <circle id="coinFace" cx="180" cy="33" r="5.1"/>
+    <clipPath id="coinFaceClip"><use href="#coinFace"/></clipPath>
+    <path id="lozengeOuter" d="M180 111.5 L188.6 126 L180 140.5 L171.4 126 Z"/>
+    <path id="lozengeInner" d="M180 115.2 L186.2 126 L180 136.8 L173.8 126 Z"/>
+    <path id="lozengeGem" d="M180 115.8 L185.8 126 L180 136.2 L174.2 126 Z"/>
 
-    <!-- Stones, at their reference slots (tribute over the top, coil under the bottom). -->
-    <circle id="tributeStone" cx="160" cy="25" r="5.2"/>
-    <circle id="coilStone" cx="160" cy="107" r="5"/>
+    <!-- ===== Height profiles ===== -->
+    <linearGradient id="hBlade" gradientUnits="userSpaceOnUse" x1="0" y1="70" x2="0" y2="82">
+      <stop offset="0" stop-color="#2a2a2a"/><stop offset="0.5" stop-color="#ffffff"/><stop offset="1" stop-color="#2a2a2a"/>
+    </linearGradient>
+    <linearGradient id="hBarV" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#404040"/><stop offset="0.5" stop-color="#e0e0e0"/><stop offset="1" stop-color="#404040"/>
+    </linearGradient>
+    <linearGradient id="hBarH" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#404040"/><stop offset="0.5" stop-color="#e0e0e0"/><stop offset="1" stop-color="#404040"/>
+    </linearGradient>
+    <radialGradient id="hRing" gradientUnits="userSpaceOnUse" cx="180" cy="76" r="30">
+      <stop offset="0.766" stop-color="#3a3a3a"/>
+      <stop offset="0.80" stop-color="#bdbdbd"/>
+      <stop offset="0.835" stop-color="#8a8a8a"/>
+      <stop offset="0.855" stop-color="#3c3c3c"/>
+      <stop offset="0.88" stop-color="#8e8e8e"/>
+      <stop offset="0.93" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#3a3a3a"/>
+    </radialGradient>
+    <radialGradient id="hCoin" gradientUnits="userSpaceOnUse" cx="180" cy="33" r="6.5">
+      <stop offset="0" stop-color="#9a9a9a"/>
+      <stop offset="0.74" stop-color="#7a7a7a"/>
+      <stop offset="0.79" stop-color="#4a4a4a"/>
+      <stop offset="0.88" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#3a3a3a"/>
+    </radialGradient>
+    <linearGradient id="hLozenge" gradientUnits="userSpaceOnUse" x1="171" y1="0" x2="189" y2="0">
+      <stop offset="0" stop-color="#666"/><stop offset="0.5" stop-color="#fff"/><stop offset="1" stop-color="#666"/>
+    </linearGradient>
+
+    <!-- Snake-scale lattice, as grooves in the height map. -->
+    <pattern id="scales" patternUnits="userSpaceOnUse" width="2.4" height="2.1">
+      <path d="M0 1.05 Q0.6 0 1.2 1.05 Q1.8 2.1 2.4 1.05" fill="none" stroke="#000" stroke-width="0.45"/>
+      <path d="M-1.2 0 Q-0.6 -1.05 0 0 Q0.6 1.05 1.2 0 Q1.8 -1.05 2.4 0 Q3 1.05 3.6 0" fill="none" stroke="#000" stroke-width="0.45"/>
+      <path d="M-1.2 2.1 Q-0.6 1.05 0 2.1 Q0.6 3.15 1.2 2.1 Q1.8 1.05 2.4 2.1 Q3 3.15 3.6 2.1" fill="none" stroke="#000" stroke-width="0.45"/>
+    </pattern>
 
     <!-- ===== Paints ===== -->
-    <linearGradient id="steel" gradientUnits="userSpaceOnUse" x1="0" y1="58.5" x2="0" y2="73.5">
-      <stop offset="0" stop-color="#8e98a6"/>
-      <stop offset="0.18" stop-color="#e3e9f0"/>
-      <stop offset="0.42" stop-color="#b9c2ce"/>
-      <stop offset="0.5" stop-color="#f4f7fb"/>
-      <stop offset="0.53" stop-color="#6d7684"/>
-      <stop offset="0.8" stop-color="#4b525e"/>
-      <stop offset="1" stop-color="#2d323a"/>
-    </linearGradient>
-    <linearGradient id="bladeLength" gradientUnits="userSpaceOnUse" x1="3" y1="0" x2="92" y2="0">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
-      <stop offset="0.3" stop-color="#ffffff" stop-opacity="0"/>
-      <stop offset="0.8" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0.4"/>
-    </linearGradient>
-    <linearGradient id="iron" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4b4f58"/>
-      <stop offset="0.45" stop-color="#25272d"/>
-      <stop offset="1" stop-color="#0c0d10"/>
-    </linearGradient>
-    <linearGradient id="ironDark" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#33363d"/>
-      <stop offset="1" stop-color="#0a0b0d"/>
-    </linearGradient>
-    <linearGradient id="silver" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#e6e9ee"/>
-      <stop offset="0.5" stop-color="#9097a2"/>
-      <stop offset="1" stop-color="#4a4f58"/>
-    </linearGradient>
-    <radialGradient id="glassBack" cx="160" cy="70" r="25" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0d1426"/>
-      <stop offset="0.75" stop-color="#060a14"/>
-      <stop offset="1" stop-color="#020306"/>
+    <radialGradient id="glassBack" gradientUnits="userSpaceOnUse" cx="186" cy="66" r="27">
+      <stop offset="0" stop-color="#9a9da3"/>
+      <stop offset="0.45" stop-color="#55585e"/>
+      <stop offset="0.85" stop-color="#25272b"/>
+      <stop offset="1" stop-color="#121315"/>
     </radialGradient>
-    <radialGradient id="liquidBody" cx="158" cy="72" r="27" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="0.45" stop-color="#d2d2d2"/>
-      <stop offset="0.8" stop-color="#8d8d8d"/>
-      <stop offset="1" stop-color="#555555"/>
+    <radialGradient id="liquidBody" gradientUnits="userSpaceOnUse" cx="178" cy="80" r="25">
+      <stop offset="0" stop-color="#e6e6e6"/>
+      <stop offset="0.6" stop-color="#a8a8a8"/>
+      <stop offset="1" stop-color="#5a5a5a"/>
     </radialGradient>
-    <radialGradient id="glassShine" cx="150" cy="52" r="20" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
-      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.14"/>
+    <radialGradient id="glassShine" gradientUnits="userSpaceOnUse" cx="189" cy="63" r="17">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.35"/>
       <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="glassEdge" cx="160" cy="66" r="25" gradientUnits="userSpaceOnUse">
-      <stop offset="0.78" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0.55"/>
+    <radialGradient id="glassEdge" gradientUnits="userSpaceOnUse" cx="180" cy="76" r="23">
+      <stop offset="0.75" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.6"/>
     </radialGradient>
-    <!-- Engraved socket: shadowed at the top, catching light at the bottom. -->
-    <linearGradient id="socketDepth" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#050506"/>
-      <stop offset="0.6" stop-color="#16171b"/>
-      <stop offset="1" stop-color="#2e3036"/>
-    </linearGradient>
-    <linearGradient id="socketLip" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#050507"/>
-      <stop offset="0.5" stop-color="#3a3d45"/>
-      <stop offset="1" stop-color="#c4c9d1"/>
-    </linearGradient>
-    <radialGradient id="cabochon" cx="0.36" cy="0.3" r="0.8">
+    <radialGradient id="stoneCentre" cx="0.5" cy="0.5" r="0.5">
       <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="0.3" stop-color="#dadada"/>
-      <stop offset="0.75" stop-color="#8a8a8a"/>
-      <stop offset="1" stop-color="#4f4f4f"/>
-    </radialGradient>
-    <radialGradient id="cabochonDull" cx="0.36" cy="0.3" r="0.8">
-      <stop offset="0" stop-color="#2a2f3a"/>
-      <stop offset="0.6" stop-color="#15181f"/>
-      <stop offset="1" stop-color="#08090c"/>
-    </radialGradient>
-    <radialGradient id="backlight" cx="0.5" cy="0.55" r="0.5">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="0.45" stop-color="#e6e6e6"/>
+      <stop offset="0.5" stop-color="#d8d8d8"/>
       <stop offset="1" stop-color="#7a7a7a"/>
     </radialGradient>
-    <radialGradient id="rubyDull" cx="0.5" cy="0.55" r="0.5">
-      <stop offset="0" stop-color="#4a0b12"/>
-      <stop offset="1" stop-color="#160306"/>
+    <radialGradient id="backlight" cx="0.5" cy="0.5" r="0.55">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#e0e0e0"/>
+      <stop offset="1" stop-color="#8a8a8a"/>
     </radialGradient>
-
   </defs>
 
-  <!-- Reference points for the plugin; never drawn. Stones sit on arcs around the orb's centre:
-       slot i of n is turned (i - (n-1)/2) * step degrees from the reference slot. -->
+  <!-- Reference points for the plugin; never drawn. -->
   <g id="anchors" display="none">
-    <circle id="anchor-centre" cx="160" cy="66" r="0"/>
-    <circle id="anchor-gem" cx="160" cy="25" r="0" data-radius="41" data-step="21"/>
-    <circle id="anchor-coil" cx="160" cy="107" r="0" data-radius="-41" data-step="20"/>
-    <circle id="anchor-value" cx="160" cy="66" r="0" data-height="14"/>
-    <circle id="anchor-timer" cx="160" cy="9" r="0" data-height="12"/>
-    <rect id="anchor-liquid" x="135" y="41" width="50" height="50"/>
+    <circle id="anchor-centre" cx="180" cy="76" r="0"/>
+    <circle id="anchor-gem" cx="180" cy="33" r="0" data-spacing="13"/>
+    <circle id="anchor-coil" cx="180" cy="126" r="0" data-spacing="18"/>
+    <circle id="anchor-value" cx="180" cy="76" r="0" data-height="14"/>
+    <circle id="anchor-timer" cx="180" cy="14" r="0" data-height="11"/>
+    <rect id="anchor-liquid" x="157" y="53" width="46" height="46"/>
   </g>
 
-  <!-- ===================== Left blade, guard and grip (mirrored for the right) ===================== -->
+  <!-- ======================= Left blade and hilt (mirrored for the right) ======================= -->
   <g data-layer="blade-halo" data-kind="mask">
-    <use href="#blade" fill="#fff" filter="url(#blur6)" opacity="0.85"/>
-    <use href="#blade" fill="#fff" filter="url(#blur1)"/>
+    <use href="#blade" fill="#fff" filter="url(#blur4)"/>
+    <use href="#blade" fill="#fff" filter="url(#blur2)"/>
   </g>
 
-  <g data-layer="blade-base" data-kind="color">
-    <!-- Blade. -->
-    <use href="#blade" fill="url(#steel)"/>
-    <g clip-path="url(#bladeClip)">
-      <rect x="0" y="55" width="100" height="22" filter="url(#brushed)" opacity="0.35"/>
-      <use href="#blade" fill="url(#bladeLength)"/>
-      <!-- Etched serpent along the fuller near the hilt: groove in shadow, lower wall catching light. -->
-      <path d="M88 66 C84 62.2 80 62.2 76 66 S68 69.8 64 66 S56 62.2 52 66 S46 68.6 43 66.6" fill="none" stroke="#1b1f26" stroke-width="0.75"/>
-      <path d="M88 66.6 C84 62.8 80 62.8 76 66.6 S68 70.4 64 66.6 S56 62.8 52 66.6 S46 69.2 43 67.2" fill="none" stroke="#ffffff" stroke-width="0.45" opacity="0.55"/>
-      <g fill="none" stroke="#1b1f26" stroke-width="0.5" opacity="0.8">
-        <path d="M80 63.6 l1.2 1.2 l1.2 -1.2"/><path d="M68 68.4 l1.2 -1.2 l1.2 1.2"/><path d="M56 63.6 l1.2 1.2 l1.2 -1.2"/>
-      </g>
-      <!-- Ricasso: darker blued steel with a cross-hatched band next to the guard. -->
-      <rect x="84" y="58" width="8" height="16" fill="#151a24" opacity="0.6"/>
-      <g stroke="#9aa3b0" stroke-width="0.35" opacity="0.6">
-        <path d="M84.5 58.5 L91.5 73.5"/><path d="M87.5 58.5 L91.5 67"/><path d="M84.5 65 L88.5 73.5"/>
-        <path d="M91.5 58.5 L84.5 73.5"/><path d="M88.5 58.5 L84.5 67"/><path d="M91.5 65 L87.5 73.5"/>
-      </g>
-    </g>
-    <!-- Edges: the upper bevel catches the light, the lower one falls into shadow. -->
-    <path d="M92 59.1 L27 59.1 Q14.3 61.5 4.2 66" fill="none" stroke="#ffffff" stroke-width="0.6" opacity="0.9"/>
-    <path d="M4.2 66 Q14.3 70.5 27 72.9 L92 72.9" fill="none" stroke="#9aa4b2" stroke-width="0.5" opacity="0.6"/>
-    <path d="M7 66 L84 66" stroke="#ffffff" stroke-width="0.4" opacity="0.6"/>
-    <use href="#blade" fill="none" stroke="#08090c" stroke-width="0.8" stroke-linejoin="round"/>
-
-    <!-- Grip: black iron wrapped in engraved bands. -->
-    <g filter="url(#metal)">
-      <use href="#grip" fill="url(#ironDark)"/>
-      <rect x="107" y="60" width="3" height="12" rx="1" fill="url(#silver)"/>
-      <rect x="119" y="60" width="3" height="12" rx="1" fill="url(#silver)"/>
-    </g>
-    <g stroke="#000" stroke-width="0.5" opacity="0.7">
-      <path d="M111 61.5 L114 70.5"/><path d="M113.5 61.5 L116.5 70.5"/><path d="M116 61.5 L119 70.5"/>
-      <path d="M123 61.5 L126 70.5"/><path d="M125.5 61.5 L128.5 70.5"/>
-    </g>
-
-    <!-- Crossguard with finials and a boss. -->
-    <g filter="url(#metal)">
-      <use href="#guardWings" fill="url(#iron)"/>
-      <use href="#guard" fill="url(#iron)"/>
-      <use href="#boss" fill="url(#iron)"/>
-      <circle cx="98" cy="66" r="5.2" fill="url(#ironDark)"/>
-    </g>
-    <!-- Engraved quatrefoil in the boss and tracery on the spikes. -->
-    <g fill="none" stroke="#050506" stroke-width="0.55">
-      <path d="M98 62.2 A1.9 1.9 0 0 1 98 66 A1.9 1.9 0 0 1 98 69.8 A1.9 1.9 0 0 1 98 66 A1.9 1.9 0 0 1 98 62.2 Z"/>
-      <path d="M94.2 66 A1.9 1.9 0 0 1 98 66 A1.9 1.9 0 0 1 101.8 66 A1.9 1.9 0 0 1 98 66 A1.9 1.9 0 0 1 94.2 66 Z"/>
-      <path d="M98 41 L98 55"/><path d="M98 77 L98 91"/>
-    </g>
-    <g fill="none" stroke="#a8afba" stroke-width="0.35" opacity="0.7">
-      <path d="M98.5 41.5 L98.5 55.5"/><path d="M98.5 77.5 L98.5 91.5"/>
-      <circle cx="98" cy="66" r="5.4"/>
-    </g>
-    <circle cx="98" cy="66" r="1" fill="#c9ced6"/>
+  <g data-layer="blade-base" data-kind="color" data-shade="metal" data-depth="2.6">
+    <!-- Serpent (behind the hilt): silver scales, red eye in the glow pass. -->
+    <use href="#serpentBody" fill="none" stroke="#8b8d92" stroke-width="6" stroke-linecap="round"/>
+    <use href="#serpentHead" fill="#8b8d92"/>
+    <path d="M133.6 45.5 L141 45.9" stroke="#2a2b2e" stroke-width="0.5"/>
+    <!-- Blade: bright steel. -->
+    <use href="#blade" fill="#d5dae1"/>
+    <path d="M104 70.4 L26 70.4 L4.6 76" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+    <!-- Hilt. -->
+    <use href="#connector" fill="#737579"/>
+    <use href="#collarSpikes" fill="#8b8d92"/>
+    <use href="#collar" fill="#737579"/>
+    <use href="#post" fill="#8b8d92"/>
+    <use href="#postKnobs" fill="#9b9da2"/>
+  </g>
+  <g data-layer="blade-base" data-pass="height" filter="url(#hb)">
+    <!-- Serpent: a rounded body with scales cut into it. -->
+    <use href="#serpentBody" fill="none" stroke="#505050" stroke-width="6" stroke-linecap="round"/>
+    <use href="#serpentBody" fill="none" stroke="#909090" stroke-width="4.4" stroke-linecap="round"/>
+    <use href="#serpentBody" fill="none" stroke="#c8c8c8" stroke-width="2.8" stroke-linecap="round"/>
+    <use href="#serpentBody" fill="none" stroke="#f0f0f0" stroke-width="1.2" stroke-linecap="round"/>
+    <use href="#serpentBody" fill="none" stroke="url(#scales)" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+    <use href="#serpentHead" fill="#909090"/>
+    <path d="M147 43.5 C142 43 137.5 43.6 134.4 45.5 C137.5 47.4 142 48 147 47.5 Z" fill="#d0d0d0" filter="url(#hb2)"/>
+    <use href="#serpentHead" fill="url(#scales)" opacity="0.5"/>
+    <path d="M133.6 45.5 L141 45.9" stroke="#202020" stroke-width="0.6"/>
+    <circle cx="139" cy="43.7" r="1.3" fill="#303030"/>
+    <!-- Blade: a ridge down the middle, bevels to both edges. -->
+    <use href="#blade" fill="url(#hBlade)"/>
+    <!-- Hilt. -->
+    <use href="#connector" fill="url(#hBarV)"/>
+    <path d="M131 71.5 L131 80.5 M137 71.5 L137 80.5 M143 71.5 L143 80.5" stroke="#ffffff" stroke-width="1.6"/>
+    <path d="M128 72.5 L128 79.5 M134 72.5 L134 79.5 M140 72.5 L140 79.5 M146 72.5 L146 79.5" stroke="#202020" stroke-width="0.5"/>
+    <use href="#collarSpikes" fill="#c0c0c0"/>
+    <use href="#collar" fill="url(#hBarV)"/>
+    <path d="M101 70.5 L117 70.5 M101 81.5 L117 81.5" stroke="#ffffff" stroke-width="1"/>
+    <path d="M104 72 L104 80 M109 72 L109 80 M114 72 L114 80" stroke="#1a1a1a" stroke-width="0.6"/>
+    <circle cx="106.5" cy="76" r="1" fill="#ffffff"/><circle cx="111.5" cy="76" r="1" fill="#ffffff"/>
+    <use href="#post" fill="url(#hBarH)"/>
+    <use href="#postKnobs" fill="#d0d0d0"/>
+    <path d="M122 45.6 L122 54.4 M118.8 50 L125.2 50 M122 97.6 L122 106.4 M118.8 102 L125.2 102 M122 69.6 L122 82.4 M117.9 76 L126.1 76" stroke="#ffffff" stroke-width="0.6" filter="url(#hb2)"/>
+  </g>
+  <g data-layer="blade-base" data-pass="glow">
+    <circle cx="139" cy="43.7" r="1.25" fill="#d0121a"/>
+    <circle cx="138.6" cy="43.3" r="0.4" fill="#ff9a9a"/>
   </g>
 
   <g data-layer="blade-tint" data-kind="mask">
-    <use href="#bladeUpper" fill="#fff" opacity="0.2"/>
-    <use href="#blade" fill="#fff" opacity="0.14"/>
-    <use href="#blade" fill="none" stroke="#fff" stroke-width="0.9" stroke-linejoin="round" opacity="0.95"/>
-    <use href="#blade" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" opacity="0.35" filter="url(#soft)"/>
-    <path d="M7 66 L84 66" stroke="#fff" stroke-width="0.8" opacity="0.7" filter="url(#soft)"/>
+    <use href="#blade" fill="#d6d6d6"/>
+    <use href="#bladeTop" fill="#ffffff"/>
+    <path d="M100 76 L8 76" stroke="#ffffff" stroke-width="0.6"/>
+    <use href="#blade" fill="none" stroke="#ffffff" stroke-width="0.7"/>
   </g>
 
-  <!-- ===================== The orb (Serpent Offerings) ===================== -->
+  <!-- ======================= Orb (Serpent Offerings) ======================= -->
+  <!-- Rear: a glow behind the orb and its bars only. -->
   <g data-layer="vessel-halo" data-kind="mask">
-    <circle cx="160" cy="66" r="34" fill="#fff" filter="url(#blur6)" opacity="0.7"/>
-    <use href="#bandTop" fill="#fff" filter="url(#blur3)" opacity="0.7"/>
-    <use href="#bandBottom" fill="#fff" filter="url(#blur3)" opacity="0.7"/>
+    <circle cx="180" cy="76" r="32" fill="#fff" filter="url(#blur7)"/>
+    <circle cx="180" cy="76" r="30" fill="#fff" filter="url(#blur2)"/>
+    <use href="#coinBar" fill="#fff" filter="url(#blur4)"/>
+    <use href="#diamondBar" fill="#fff" filter="url(#blur4)"/>
   </g>
 
   <g data-layer="vessel-back" data-kind="color">
@@ -266,134 +226,152 @@
   <g data-layer="liquid" data-kind="mask">
     <g clip-path="url(#glassClip)">
       <use href="#glass" fill="url(#liquidBody)"/>
-      <rect x="130" y="36" width="60" height="60" filter="url(#wisps)" opacity="0.28"/>
-      <!-- Light gathering at the bottom of the glass. -->
-      <path d="M143 84 Q160 93 177 84 Q160 89.5 143 84 Z" fill="#fff" opacity="0.45" filter="url(#soft)"/>
-      <g fill="#fff" opacity="0.4">
-        <circle cx="152" cy="80" r="0.9"/><circle cx="166" cy="75" r="0.7"/><circle cx="158" cy="70" r="0.6"/>
-        <circle cx="171" cy="83" r="0.8"/><circle cx="148" cy="73" r="0.5"/>
-      </g>
+      <rect x="150" y="46" width="60" height="60" filter="url(#wisps)" opacity="0.35"/>
     </g>
   </g>
 
-  <!-- Liquid surface at the orb's equator; the plugin moves it to the fill level and narrows it to fit the glass. -->
+  <!-- The glowing surface, at the orb's equator; the plugin moves it to the level and fits it to the glass. -->
   <g data-layer="liquid-surface" data-kind="mask">
-    <ellipse cx="160" cy="66" rx="24.6" ry="2.4" fill="#fff" opacity="0.5" filter="url(#soft)"/>
-    <path d="M136 65.6 Q160 63.2 184 65.6" fill="none" stroke="#fff" stroke-width="0.8" opacity="0.95"/>
+    <ellipse cx="180" cy="76.5" rx="23" ry="3.6" fill="#fff" opacity="0.55" filter="url(#blur2)"/>
+    <ellipse cx="180" cy="76" rx="22.6" ry="1.6" fill="#fff" opacity="0.9" filter="url(#soft)"/>
+    <g fill="#fff" opacity="0.9">
+      <circle cx="167" cy="72.5" r="0.5"/><circle cx="173" cy="70.8" r="0.4"/><circle cx="179" cy="72" r="0.6"/>
+      <circle cx="185" cy="70.4" r="0.4"/><circle cx="190" cy="72.6" r="0.5"/><circle cx="195" cy="71.2" r="0.35"/>
+    </g>
   </g>
 
   <g data-layer="vessel-glass" data-kind="color">
     <use href="#glass" fill="url(#glassEdge)"/>
     <use href="#glass" fill="url(#glassShine)"/>
-    <path d="M141.5 57 A20 20 0 0 1 155 44.2" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.55" filter="url(#soft)"/>
-    <ellipse cx="149" cy="50.5" rx="2.4" ry="1.4" fill="#ffffff" opacity="0.85" transform="rotate(-35 149 50.5)"/>
-    <path d="M178 80 A22 22 0 0 1 164 89.6" fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
+    <ellipse cx="191" cy="62" rx="3.2" ry="2.2" fill="#ffffff" opacity="0.9" filter="url(#soft)"/>
   </g>
 
-  <g data-layer="vessel-frame" data-kind="color">
-    <g filter="url(#metal)">
-      <!-- Bands that hold the stones. -->
-      <use href="#bandTop" fill="url(#iron)"/>
-      <use href="#bandBottom" fill="url(#iron)"/>
-      <!-- Finials at the ends of the bands. -->
-      <path d="M120.2 39.2 L114 34 L126 37.4 Z M199.8 39.2 L206 34 L194 37.4 Z" fill="url(#iron)"/>
-      <path d="M130.4 103.8 L125.5 109.5 L135.2 105.7 Z M189.6 103.8 L194.5 109.5 L184.8 105.7 Z" fill="url(#iron)"/>
-      <!-- Spikes on the ring, between the bands and the grips. -->
-      <path d="M131.6 82.4 L123.5 90.5 L134.4 85.5 Z M188.4 82.4 L196.5 90.5 L185.6 85.5 Z" fill="url(#iron)"/>
-      <!-- The ring around the glass, with a raised outer lip. -->
-      <use href="#ring" fill="url(#iron)"/>
-      <circle cx="160" cy="66" r="32" fill="none" stroke="url(#silver)" stroke-width="1.6"/>
-      <circle cx="160" cy="66" r="25.8" fill="none" stroke="url(#ironDark)" stroke-width="1.6"/>
-      <!-- Rivets. -->
-      <g fill="url(#silver)">
-        <circle cx="132.4" cy="50.5" r="1.3"/><circle cx="187.6" cy="50.5" r="1.3"/>
-        <circle cx="132.4" cy="81.5" r="1.3"/><circle cx="187.6" cy="81.5" r="1.3"/>
-      </g>
-      <!-- Teeth at the equator: 50, enough to Reawaken. -->
-      <path d="M134.5 63.6 L139 66 L134.5 68.4 Z M185.5 63.6 L181 66 L185.5 68.4 Z" fill="url(#silver)"/>
+  <g data-layer="vessel-frame" data-kind="color" data-shade="metal" data-depth="2.6">
+    <use href="#banner" fill="#4a3426" transform="translate(360 0) scale(-1 1)"/>
+    <path d="M145 133 L156 133 L156 140 L150.5 144 L145 140 Z" fill="#8b8d92" transform="translate(360 0) scale(-1 1)"/>
+    <use href="#banner" fill="#4a3426"/>
+    <path d="M145 133 L156 133 L156 140 L150.5 144 L145 140 Z" fill="#8b8d92"/>
+    <use href="#pendant" fill="#8b8d92"/>
+    <use href="#coinBar" fill="#737579"/>
+    <use href="#diamondBar" fill="#737579"/>
+    <use href="#ring" fill="#8b8d92"/>
+    <use href="#fleurTop" fill="#9b9da2"/>
+    <use href="#fleurBottom" fill="#9b9da2"/>
+    <use href="#sideCross" fill="#9b9da2"/>
+    <use href="#sideCross" fill="#9b9da2" transform="translate(360 0) scale(-1 1)"/>
+  </g>
+  <g data-layer="vessel-frame" data-pass="height" filter="url(#hb)">
+    <g id="bannerHeight">
+      <use href="#banner" fill="#707070"/>
+      <path d="M146.2 109 L146.2 132 M154.8 109 L154.8 132" stroke="#383838" stroke-width="0.5" stroke-dasharray="1 0.8"/>
+      <path d="M145 133 L156 133 L156 140 L150.5 144 L145 140 Z" fill="#a8a8a8"/>
+      <path d="M150.5 135 L153 137.6 L150.5 140.2 L148 137.6 Z" fill="#e8e8e8"/>
+      <path d="M148.4 114 L152.6 114 L152.6 118.2 L148.4 118.2 Z M150.5 120 L152.6 122.1 L150.5 124.2 L148.4 122.1 Z" fill="#9a9a9a"/>
     </g>
-    <!-- Engraved borders just inside the bands: a shadowed groove with a lit lower wall. -->
-    <g clip-path="url(#bandTopClip)" fill="none">
-      <use href="#bandTop" stroke="#000" stroke-width="3.2" opacity="0.55"/>
-      <use href="#bandTop" stroke="#9aa1ad" stroke-width="0.5" opacity="0.5" transform="translate(0 0.6)"/>
+    <use href="#bannerHeight" transform="translate(360 0) scale(-1 1)"/>
+    <use href="#pendant" fill="url(#hBarH)"/>
+    <use href="#coinBar" fill="url(#hBarV)"/>
+    <use href="#diamondBar" fill="url(#hBarV)"/>
+    <use href="#ring" fill="url(#hRing)"/>
+    <!-- Engraved pointed arches around the ring. -->
+    <g fill="none" stroke="#303030" stroke-width="0.45">
+      <path d="M162 52.5 Q171 48.6 180 48.4 Q189 48.6 198 52.5"/>
+      <path d="M162 99.5 Q171 103.4 180 103.6 Q189 103.4 198 99.5"/>
     </g>
-    <g clip-path="url(#bandBottomClip)" fill="none">
-      <use href="#bandBottom" stroke="#000" stroke-width="3.2" opacity="0.55"/>
-      <use href="#bandBottom" stroke="#9aa1ad" stroke-width="0.5" opacity="0.5" transform="translate(0 0.6)"/>
-    </g>
-    <!-- Engraved tracery: pointed arches along the ring and the bands. -->
-    <g fill="none" stroke="#050506" stroke-width="0.5" opacity="0.9">
-      <path d="M160 34.6 A31.4 31.4 0 0 1 182.2 43.8"/><path d="M160 34.6 A31.4 31.4 0 0 0 137.8 43.8"/>
-      <path d="M160 97.4 A31.4 31.4 0 0 0 182.2 88.2"/><path d="M160 97.4 A31.4 31.4 0 0 1 137.8 88.2"/>
-      <path d="M124 40.6 A46 46 0 0 1 196 40.6"/>
-      <path d="M133 101.4 A46 46 0 0 0 187 101.4"/>
-    </g>
-    <g fill="none" stroke="#b7bec9" stroke-width="0.3" opacity="0.55">
-      <path d="M160 35.2 A30.8 30.8 0 0 1 181.8 44.2"/><path d="M160 35.2 A30.8 30.8 0 0 0 138.2 44.2"/>
-      <path d="M124.4 41.2 A45.4 45.4 0 0 1 195.6 41.2"/>
-    </g>
+    <use href="#fleurTop" fill="#e0e0e0"/>
+    <use href="#fleurBottom" fill="#e0e0e0"/>
+    <path d="M180 42.5 L180 52 M180 109.5 L180 100" stroke="#ffffff" stroke-width="0.8" filter="url(#hb2)"/>
+    <use href="#sideCross" fill="#e0e0e0"/>
+    <use href="#sideCross" fill="#e0e0e0" transform="translate(360 0) scale(-1 1)"/>
   </g>
 
-  <g data-layer="vessel-rim" data-kind="mask">
-    <use href="#ring" fill="#fff" opacity="0.18"/>
-    <circle cx="160" cy="66" r="32.2" fill="none" stroke="#fff" stroke-width="0.9"/>
-    <circle cx="160" cy="66" r="25.5" fill="none" stroke="#fff" stroke-width="0.9" filter="url(#soft)"/>
-    <use href="#bandTop" fill="none" stroke="#fff" stroke-width="0.6" opacity="0.7"/>
-    <use href="#bandBottom" fill="none" stroke="#fff" stroke-width="0.6" opacity="0.7"/>
+  <g data-layer="vessel-frame" data-pass="matte">
+    <path d="M145 108 L156 108 L156 133 L145 133 Z" fill="#fff"/>
+    <path d="M145 108 L156 108 L156 133 L145 133 Z" fill="#fff" transform="translate(360 0) scale(-1 1)"/>
   </g>
 
-  <!-- ===================== Anguine Tribute: a round stone set into the band ===================== -->
-  <g data-layer="gem-socket" data-kind="color" data-slot="gem">
-    <!-- The cut in the metal: dark at the top, its lower lip catching the light. -->
-    <circle cx="160" cy="25" r="6.6" fill="url(#socketLip)"/>
-    <circle cx="160" cy="25" r="5.9" fill="url(#socketDepth)"/>
-    <!-- The stone, unlit: dull and dark. -->
-    <use href="#tributeStone" fill="url(#cabochonDull)"/>
-    <g clip-path="url(#tributeClip)"><rect x="150" y="15" width="20" height="20" filter="url(#mottle)" opacity="0.5"/></g>
-    <ellipse cx="158.2" cy="22.6" rx="1.4" ry="0.7" fill="#ffffff" opacity="0.08"/>
-  </g>
-  <clipPath id="tributeClip"><use href="#tributeStone"/></clipPath>
-
+  <!-- ======================= Tribute coin (one per slot) ======================= -->
   <g data-layer="gem-halo" data-kind="mask" data-slot="gem">
-    <circle cx="160" cy="25" r="6" fill="#fff" filter="url(#blur3)"/>
+    <circle cx="180" cy="33" r="7.5" fill="#fff" filter="url(#blur2)"/>
+    <circle cx="180" cy="33" r="7" fill="#fff" filter="url(#blur4)"/>
   </g>
 
+  <g data-layer="gem-socket" data-kind="color" data-slot="gem" data-shade="metal" data-depth="2.2">
+    <use href="#coin" fill="#8b8d92"/>
+  </g>
+  <g data-layer="gem-socket" data-pass="height" data-slot="gem" filter="url(#hb)">
+    <use href="#coin" fill="url(#hCoin)"/>
+    <!-- Engraved serpent sign: two coils over a curve. -->
+    <g fill="none" stroke="#1e1e1e" stroke-width="0.6" stroke-linecap="round">
+      <path d="M179.4 31.6 A1.5 1.5 0 1 0 177.6 33.2 A0.8 0.8 0 1 0 177.9 31.9"/>
+      <path d="M180.6 31.6 A1.5 1.5 0 1 1 182.4 33.2 A0.8 0.8 0 1 1 182.1 31.9"/>
+      <path d="M176.4 35.2 Q180 37.6 183.6 35.2"/>
+      <path d="M180 29.4 L180 31.4"/>
+    </g>
+  </g>
+
+  <!-- Lit: a cut precious stone filling the coin's face. -->
   <g data-layer="gem-lit" data-kind="mask" data-slot="gem">
-    <use href="#tributeStone" fill="url(#cabochon)"/>
-    <g clip-path="url(#tributeClip)"><rect x="150" y="15" width="20" height="20" filter="url(#mottle)" opacity="0.55"/></g>
-    <ellipse cx="158" cy="22.4" rx="1.5" ry="0.8" fill="#ffffff" opacity="0.7"/>
-    <path d="M156.4 28.6 A4.2 4.2 0 0 0 163.8 27.4" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.6"/>
-  </g>
-
-  <!-- ===================== Rattling Coil: a ruby set into the band, lit from behind ===================== -->
-  <g data-layer="coil-socket" data-kind="color" data-slot="coil">
-    <circle cx="160" cy="107" r="6.4" fill="url(#socketLip)"/>
-    <circle cx="160" cy="107" r="5.7" fill="url(#socketDepth)"/>
-    <use href="#coilStone" fill="url(#rubyDull)"/>
-    <g fill="none" stroke="#000" stroke-width="0.35" opacity="0.7">
-      <path d="M160 103.2 L163.3 104.6 L164.7 107.8 L163.3 111 L160 112.4 L156.7 111 L155.3 107.8 L156.7 104.6 Z"/>
-      <path d="M160 102 L160 103.2 M165 107 L164.7 107.8 M160 112 L160 112.4 M155 107 L155.3 107.8"/>
+    <use href="#coinFace" fill="#8c8c8c"/>
+    <g clip-path="url(#coinFaceClip)">
+      <path d="M180 33 L180 27.9 L183.6 29.4 Z" fill="#d9d9d9"/>
+      <path d="M180 33 L183.6 29.4 L185.1 33 Z" fill="#a5a5a5"/>
+      <path d="M180 33 L185.1 33 L183.6 36.6 Z" fill="#8a8a8a"/>
+      <path d="M180 33 L183.6 36.6 L180 38.1 Z" fill="#9a9a9a"/>
+      <path d="M180 33 L180 38.1 L176.4 36.6 Z" fill="#b0b0b0"/>
+      <path d="M180 33 L176.4 36.6 L174.9 33 Z" fill="#c6c6c6"/>
+      <path d="M180 33 L174.9 33 L176.4 29.4 Z" fill="#ededed"/>
+      <path d="M180 33 L176.4 29.4 L180 27.9 Z" fill="#ffffff"/>
     </g>
-    <ellipse cx="158" cy="104.8" rx="1.2" ry="0.7" fill="#ff8a8a" opacity="0.25"/>
+    <circle cx="180" cy="33" r="2.6" fill="url(#stoneCentre)"/>
+    <path d="M180 30.4 L181.84 31.16 L182.6 33 L181.84 34.84 L180 35.6 L178.16 34.84 L177.4 33 L178.16 31.16 Z" fill="none" stroke="#ffffff" stroke-width="0.3" opacity="0.8"/>
+    <ellipse cx="178.3" cy="30.6" rx="1.2" ry="0.6" fill="#ffffff"/>
+    <use href="#coinFace" fill="none" stroke="#4a4a4a" stroke-width="0.5"/>
   </g>
 
+  <!-- ======================= Rattling Coil diamond (one per slot) ======================= -->
   <g data-layer="coil-halo" data-kind="mask" data-slot="coil">
-    <circle cx="160" cy="107" r="6.5" fill="#fff" filter="url(#blur3)"/>
+    <use href="#lozengeGem" fill="#fff" filter="url(#blur2)"/>
+    <use href="#lozengeGem" fill="#fff" filter="url(#blur4)"/>
   </g>
 
+  <g data-layer="coil-socket" data-kind="color" data-slot="coil" data-shade="metal" data-depth="2.4">
+    <path d="M180 107 L182 111.5 L178 111.5 Z" fill="#9b9da2"/>
+    <use href="#lozengeOuter" fill="#8b8d92"/>
+    <use href="#lozengeInner" fill="#4a4245"/>
+    <!-- Unlit diamond: dull, smoky mauve. -->
+    <use href="#lozengeGem" fill="#6b5f63"/>
+    <path d="M180 140.5 L182.6 143.6 L180 146.6 L177.4 143.6 Z" fill="#8b8d92"/>
+  </g>
+  <g data-layer="coil-socket" data-pass="height" data-slot="coil" filter="url(#hb)">
+    <path d="M180 107 L182 111.5 L178 111.5 Z" fill="#d0d0d0"/>
+    <use href="#lozengeOuter" fill="url(#hLozenge)"/>
+    <use href="#lozengeInner" fill="#303030"/>
+    <!-- The diamond as a pyramid, so each facet catches the light differently. -->
+    <path d="M180 126 L180 115.8 L185.8 126 Z" fill="#9a9a9a"/>
+    <path d="M180 126 L185.8 126 L180 136.2 Z" fill="#9a9a9a"/>
+    <path d="M180 126 L180 136.2 L174.2 126 Z" fill="#9a9a9a"/>
+    <path d="M180 126 L174.2 126 L180 115.8 Z" fill="#9a9a9a"/>
+    <path d="M180 120 L183 126 L180 132 L177 126 Z" fill="#d8d8d8"/>
+    <path d="M180 140.5 L182.6 143.6 L180 146.6 L177.4 143.6 Z" fill="#d0d0d0"/>
+  </g>
+
+  <!-- Lit: a ruby, light coming through from behind. -->
   <g data-layer="coil-lit" data-kind="mask" data-slot="coil">
-    <use href="#coilStone" fill="url(#backlight)"/>
-    <!-- Facets: the table and the crown's kite facets, alternately catching the light. -->
+    <use href="#lozengeGem" fill="url(#backlight)"/>
     <g opacity="0.55">
-      <path d="M160 102 L163.3 104.6 L160 103.2 L156.7 104.6 Z" fill="#9a9a9a"/>
-      <path d="M165 107 L163.3 104.6 L164.7 107.8 Z" fill="#c8c8c8"/>
-      <path d="M165 107 L164.7 107.8 L163.3 111 Z" fill="#8a8a8a"/>
-      <path d="M160 112 L163.3 111 L160 112.4 L156.7 111 Z" fill="#7a7a7a"/>
-      <path d="M155 107 L155.3 107.8 L156.7 111 Z" fill="#a8a8a8"/>
-      <path d="M155 107 L156.7 104.6 L155.3 107.8 Z" fill="#dcdcdc"/>
+      <path d="M180 126 L180 115.8 L174.2 126 Z" fill="#ffffff"/>
+      <path d="M180 126 L180 115.8 L185.8 126 Z" fill="#c8c8c8"/>
+      <path d="M180 126 L185.8 126 L180 136.2 Z" fill="#7c7c7c"/>
+      <path d="M180 126 L174.2 126 L180 136.2 Z" fill="#a4a4a4"/>
     </g>
-    <path d="M160 103.2 L163.3 104.6 L164.7 107.8 L163.3 111 L160 112.4 L156.7 111 L155.3 107.8 L156.7 104.6 Z" fill="none" stroke="#5a5a5a" stroke-width="0.35"/>
-    <path d="M160 104.6 L162.4 105.6 L163.4 107.8 L162.4 110 L160 111 L157.6 110 L156.6 107.8 L157.6 105.6 Z" fill="#ffffff" opacity="0.55"/>
-    <ellipse cx="158.4" cy="104.6" rx="1.3" ry="0.7" fill="#ffffff" opacity="0.95"/>
+    <path d="M180 119.6 L183.4 126 L180 132.4 L176.6 126 Z" fill="#ffffff" opacity="0.6"/>
+    <path d="M180 115.8 L180 136.2 M174.2 126 L185.8 126" stroke="#5a5a5a" stroke-width="0.3" opacity="0.7"/>
+    <path d="M176.4 121 L178.6 117.6" stroke="#ffffff" stroke-width="0.7" stroke-linecap="round"/>
+  </g>
+
+  <!-- ======================= Timer label (drawn behind the Reawaken time) ======================= -->
+  <g data-layer="label-pill" data-kind="color">
+    <rect x="166" y="7.5" width="28" height="13" rx="6.5" fill="#141518" opacity="0.82" filter="url(#soft)"/>
   </g>
 </svg>

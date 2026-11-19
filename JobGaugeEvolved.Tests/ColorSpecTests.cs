@@ -41,6 +41,18 @@ public class ColorSpecTests
     }
 
     [Fact]
+    public void AMirroredShapeMirrorsAHorizontalGradient()
+    {
+        // The right blade is the left one mirrored: its gradient must still start at its tip (the right end).
+        var spec = new ColorSpec(Red, Blue, GradientDirection.LeftToRight);
+        var (tl, tr, br, bl) = spec.Corners(mirrored: true);
+        Assert.Equal((Blue, Red, Red, Blue), (tl, tr, br, bl));
+
+        var vertical = new ColorSpec(Red, Blue);
+        Assert.Equal(vertical.Corners(), vertical.Corners(mirrored: true));
+    }
+
+    [Fact]
     public void PackIsAbgrWithRedInTheLowByte()
     {
         Assert.Equal(0xFF0000FFu, ColorSpec.Pack(Red));

@@ -26,15 +26,19 @@ public sealed class ViperConfig : GaugeConfig
     public bool ShowCoils = true;
     public ColorSpec CoilColor = DefaultCoil();
 
-    public static ColorSpec DefaultRecommend() => new(ColorSpec.Hex("#FFD45C"));
+    // Defaults follow the game: a lit Vipersight blade is blue-violet at the tip and orange at the hilt.
+    public static ColorSpec DefaultRecommend() =>
+        new(ColorSpec.Hex("#7C86FF"), ColorSpec.Hex("#FFA040"), GradientDirection.LeftToRight);
 
-    public static ColorSpec DefaultFlank() => new(ColorSpec.Hex("#4CD964"), ColorSpec.Hex("#FFE066"));
+    public static ColorSpec DefaultFlank() =>
+        new(ColorSpec.Hex("#3DDC5A"), ColorSpec.Hex("#FFE15A"), GradientDirection.LeftToRight);
 
-    public static ColorSpec DefaultRear() => new(ColorSpec.Hex("#FF4B3E"), ColorSpec.Hex("#FFD45C"));
+    public static ColorSpec DefaultRear() => new(ColorSpec.Hex("#FF4B3E"), ColorSpec.Hex("#FFC94A"));
 
-    public static ColorSpec DefaultLiquid() => new(ColorSpec.Hex("#3F94FF"));
+    // The game's liquid: a bright cyan surface over a violet-blue body.
+    public static ColorSpec DefaultLiquid() => new(ColorSpec.Hex("#47D8FF"), ColorSpec.Hex("#6450E6"));
 
-    public static ColorSpec DefaultTribute() => new(ColorSpec.Hex("#4FA8FF"));
+    public static ColorSpec DefaultTribute() => new(ColorSpec.Hex("#3FA0FF"));
 
     public static ColorSpec DefaultCoil() => new(ColorSpec.Hex("#FF2B3D"));
 

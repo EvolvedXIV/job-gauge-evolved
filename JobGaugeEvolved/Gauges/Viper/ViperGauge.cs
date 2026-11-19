@@ -13,8 +13,8 @@ using JobGaugeEvolved.Windows;
 namespace JobGaugeEvolved.Gauges.Viper;
 
 /// <summary>
-/// Viper: the Vipersight blades either side of the Serpent Offerings vessel, with the Anguine Tribute gems on top
-/// and the Rattling Coils underneath.
+/// Viper: the Vipersight blades either side of the Serpent Offerings orb, with the Anguine Tribute coins on top
+/// and the Rattling Coil diamonds hanging underneath.
 /// </summary>
 internal sealed unsafe class ViperGauge : IJobGauge
 {
@@ -25,6 +25,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
     private const double PulsePeriod = 1.6;
 
     private readonly ViperConfig config;
+    private readonly ColorSpec surfaceColor = new();
     private ViperSnapshot snapshot;
     private ViperHighlights highlights = ViperHighlights.None;
 
@@ -130,8 +131,9 @@ internal sealed unsafe class ViperGauge : IJobGauge
         var h = highlights;
         var layout = canvas.Layout;
 
+        // Lit glows breathe between 55% and 100%, as the game's do.
         float Pulse(double phase) =>
-            config.AnimateGlow ? (float)(0.82 + 0.18 * Math.Sin(time * 2 * Math.PI / PulsePeriod + phase)) : 1f;
+            config.AnimateGlow ? (float)(0.775 + 0.225 * Math.Sin(time * 2 * Math.PI / PulsePeriod + phase)) : 1f;
 
         ColorSpec GlowColor(BladeGlow glow) => glow switch
         {
@@ -147,12 +149,13 @@ internal sealed unsafe class ViperGauge : IJobGauge
             _ => 1f,
         };
 
-        // Rear: the vessel glows behind everything.
+        // Rear: a glow behind the orb, under everything else.
         if (h.Center) {
             canvas.Layer(ViperLayers.VesselHalo, config.RearColor, Pulse(0));
         }
 
-        // Blades: left is the Steel Fangs button, right (mirrored) the Reaving Fangs button.
+        // Blades: left is the Steel Fangs button, right (mirrored) the Reaving Fangs button. A lit blade glows and
+        // turns into a coloured blade, like the game's.
         foreach (var (glow, mirror) in new[] { (h.Left, false), (h.Right, true) }) {
             var strength = Strength(glow);
             if (strength > 0f) {
@@ -174,15 +177,19 @@ internal sealed unsafe class ViperGauge : IJobGauge
                 var liquid = layout.Anchor(ViperLayers.LiquidAnchor);
                 var level = liquid.Y + liquid.H * (1f - fill);
                 var body = layout.Layer(ViperLayers.Liquid).Box;
-                canvas.Layer(ViperLayers.Liquid, config.LiquidColor, cropTop: (level - body.Y) / body.H);
+                var cropTop = (level - body.Y) / body.H;
+                canvas.Layer(ViperLayers.Liquid, config.LiquidColor, cropTop: cropTop);
 
-                // The surface sits at the level, as wide as the glass is there.
+                // The glowing surface sits at the level, as wide as the glass is there, in the liquid's colour there.
                 if (fill < 0.98f) {
                     var radius = liquid.W / 2f;
                     var fromCentre = level - (liquid.Y + liquid.H / 2f);
                     var halfChord = MathF.Sqrt(MathF.Max(0f, radius * radius - fromCentre * fromCentre));
                     var bob = config.AnimateGlow ? (float)Math.Sin(time * 2.3) * 0.35f : 0f;
-                    canvas.Layer(ViperLayers.LiquidSurface, config.LiquidColor, 0.9f,
+                    surfaceColor.A = config.LiquidColor.Direction == GradientDirection.TopToBottom
+                        ? config.LiquidColor.At(cropTop)
+                        : config.LiquidColor.At(0.5f);
+                    canvas.Layer(ViperLayers.LiquidSurface, surfaceColor, 0.9f,
                         offset: new Vector2(0f, fromCentre + bob), widthScale: halfChord / radius);
                 }
             }
@@ -190,28 +197,33 @@ internal sealed unsafe class ViperGauge : IJobGauge
 
         canvas.Layer(ViperLayers.VesselGlass);
         canvas.Layer(ViperLayers.VesselFrame);
-        if (h.Center) {
-            canvas.Layer(ViperLayers.VesselRim, config.RearColor, Pulse(0));
-        }
 
-        // Anguine Tributes: lit only while Reawakened.
+        // Anguine Tributes: metal coins that turn into precious stones, pulsing, while Reawakened.
         var tributes = ViperLogic.TributeMax(s.Level);
         for (var i = 0; i < tributes; i++) {
             var offset = layout.SlotOffset(ViperLayers.GemSlot, i, tributes);
+            var lit = s.Reawakened && i < s.AnguineTribute;
+            if (lit) {
+                canvas.Layer(ViperLayers.GemHalo, config.TributeColor, 0.9f * Pulse(i * 0.6), offset: offset);
+            }
+
             canvas.Layer(ViperLayers.GemSocket, offset: offset);
-            if (s.Reawakened && i < s.AnguineTribute) {
-                canvas.Layer(ViperLayers.GemHalo, config.TributeColor, 0.8f * Pulse(i * 0.6), offset: offset);
+            if (lit) {
                 canvas.Layer(ViperLayers.GemLit, config.TributeColor, offset: offset);
             }
         }
 
-        // Rattling Coils.
+        // Rattling Coils: rubies, lit from behind while available.
         var coils = config.ShowCoils ? ViperLogic.CoilMax(s.Level) : 0;
         for (var i = 0; i < coils; i++) {
             var offset = layout.SlotOffset(ViperLayers.CoilSlot, i, coils);
+            var lit = i < s.RattlingCoils;
+            if (lit) {
+                canvas.Layer(ViperLayers.CoilHalo, config.CoilColor, 0.8f, offset: offset);
+            }
+
             canvas.Layer(ViperLayers.CoilSocket, offset: offset);
-            if (i < s.RattlingCoils) {
-                canvas.Layer(ViperLayers.CoilHalo, config.CoilColor, 0.7f, offset: offset);
+            if (lit) {
                 canvas.Layer(ViperLayers.CoilLit, config.CoilColor, offset: offset);
             }
         }
@@ -223,6 +235,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
 
         if (config.ShowReawakenTimer && s.Reawakened) {
             var anchor = layout.Anchor(ViperLayers.TimerAnchor);
+            canvas.Layer(ViperLayers.LabelPill);
             canvas.Text(text, MathF.Ceiling(s.ReawakenedTime).ToString("0"), anchor.Point, anchor.Value("height"));
         }
     }
@@ -237,7 +250,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
         changed |= Widgets.ColorSetting("Flank finisher", config.FlankColor, ViperConfig.DefaultFlank,
             "After Hunter's Sting: both blades light up, because Flanksting Strike and Flanksbane Fang are flank attacks.");
         changed |= Widgets.ColorSetting("Rear finisher", config.RearColor, ViperConfig.DefaultRear,
-            "After Swiftskin's Sting: the Serpent Offerings vessel lights up, because Hindsting Strike and Hindsbane Fang are rear attacks.");
+            "After Swiftskin's Sting: a glow behind the Serpent Offerings orb, because Hindsting Strike and Hindsbane Fang are rear attacks.");
         var intensity = config.OtherBladeIntensity * 100f;
         ImGui.SetNextItemWidth(Widgets.ItemWidth);
         if (ImGui.SliderFloat("Other blade at the flank step", ref intensity, 0f, 100f, "%.0f%%")) {
@@ -251,7 +264,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
         Widgets.SectionHeader("Serpent Offerings");
         changed |= Widgets.ColorSetting("Liquid", config.LiquidColor, ViperConfig.DefaultLiquid);
         changed |= Widgets.ColorSetting("Anguine Tributes", config.TributeColor, ViperConfig.DefaultTribute,
-            "The gems on top of the vessel. They light up only while Reawakened.");
+            "The coins on top of the orb. They turn into glowing stones only while Reawakened.");
         changed |= ImGui.Checkbox("Show the gauge value", ref config.ShowValue);
         changed |= ImGui.Checkbox("Show the Reawaken timer above the tributes", ref config.ShowReawakenTimer);
 

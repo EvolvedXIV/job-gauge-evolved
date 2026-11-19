@@ -75,16 +75,20 @@ and settings) and run on any platform.
 
 ### Gauge art
 
-The art is original and lives in `art/` as SVG, one group per layer. `scripts/render_art.js` renders every layer
-to `JobGaugeEvolved/Assets/<Job>/<layer>@1x|2x|3x.png` and writes `layout.json` with each layer's position. The
-PNGs are committed and embedded in the plugin, so building never needs the script. After changing an SVG, run:
+The art is original (drawn after the game's own gauges) and lives in `art/` as SVG, one group per layer. A layer
+can come with a height map (`data-pass="height"`, white = high), which `scripts/build_art.py` turns into lit,
+textured metal: relief, grime in the recesses, grain, scratches and highlights, with a light from straight above.
+A `matte` pass dulls parts such as leather, a `glow` pass is laid on top unlit (eyes). Every layer is then written
+as `JobGaugeEvolved/Assets/<Job>/<layer>@1x|2x|3x.png` with a `layout.json` of positions. The PNGs are committed and
+embedded in the plugin, so building never needs the script. After changing an SVG, run:
 
 ```
-node scripts/render_art.js art/viper/viper.svg JobGaugeEvolved/Assets/Viper
+python3 scripts/build_art.py art/viper/viper.svg JobGaugeEvolved/Assets/Viper
 ```
 
-It needs Node and Playwright with Chromium. Layers marked `data-kind="mask"` are white or grey and take the colour
-settings at draw time; the others are drawn as they are.
+It needs Python with numpy and Pillow, and Node with Playwright and Chromium (`scripts/render_art.js` rasterises
+the SVG). Layers marked `data-kind="mask"` are white or grey and take the colour settings at draw time; the others
+are drawn as they are.
 
 Notes on the Dalamud API, the toolchain and the release process shared by all EvolvedXIV plugins live in
 [EvolvedXIV/dalamud_reference](https://github.com/EvolvedXIV/dalamud_reference).
@@ -110,4 +114,4 @@ token (or GitHub App token) with **Contents: Read and write** on `EvolvedXIV/rel
 | `JobGaugeEvolved/Native/`        | Hiding the game's own gauges                                         |
 | `JobGaugeEvolved/Windows/`       | Settings and debug windows                                           |
 | `JobGaugeEvolved/Configuration/` | Saved settings                                                       |
-| `art/`, `scripts/render_art.js`  | Gauge art sources and the script that renders them                   |
+| `art/`, `scripts/build_art.py`   | Gauge art sources and the scripts that render and light them         |
