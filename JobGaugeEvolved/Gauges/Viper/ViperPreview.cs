@@ -7,7 +7,7 @@ internal static class ViperPreview
 {
     public static readonly (string Name, ViperSnapshot Snapshot)[] States =
     [
-        ("Opener (no buffs)", Make(0, ViperVenom.None)),
+        ("No buffs: nothing lit", Make(0, ViperVenom.None)),
         ("Honed Steel: Steel Fangs", Make(0, ViperVenom.Hindstung, honedSteel: true)),
         ("Honed Reavers: Reaving Fangs", Make(0, ViperVenom.Flanksbane, honedReavers: true)),
         ("Step 2, flank venom: Hunter's Sting", Make(ViperIds.SteelFangs, ViperVenom.Flankstung, honedReavers: true)),

@@ -40,6 +40,9 @@ public abstract class GaugeConfig
 
     public bool OnlyInCombat;
 
+    /// <summary>How highlights glow and pulse.</summary>
+    public GlowStyle Glow = new();
+
     /// <summary>Clamps values that may have been hand-edited or come from an older version.</summary>
     public virtual void Sanitize()
     {
@@ -53,6 +56,8 @@ public abstract class GaugeConfig
         }
 
         HudAnchor = Math.Max(0, HudAnchor);
+        Glow ??= new GlowStyle();
+        Glow.Sanitize();
         if (!Enum.IsDefined(PositionMode)) {
             PositionMode = PositionMode.Free;
         }

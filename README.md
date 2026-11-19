@@ -16,16 +16,26 @@ the Steel Fangs button, the right blade for the Reaving Fangs button.
 
 | Combo step | What lights up |
 |---|---|
-| 1. Steel Fangs or Reaving Fangs | The blade of the button your Honed buff empowers: Honed Steel → left, Honed Reavers → right. Both when you have neither (opener). |
-| 2. Hunter's Sting or Swiftskin's Sting | The blade that leads to the finisher your venom empowers: a flank venom → left (Hunter's Sting), a rear venom → right (Swiftskin's Sting). Both when you have none. |
+| 1. Steel Fangs or Reaving Fangs | The blade of the button your Honed buff empowers: Honed Steel → left, Honed Reavers → right. Nothing without a Honed buff. |
+| 2. Hunter's Sting or Swiftskin's Sting | The blade that leads to the finisher your venom empowers: a flank venom → left (Hunter's Sting), a rear venom → right (Swiftskin's Sting). Nothing without a venom. |
 | 3. Flank finisher (after Hunter's Sting) | Both blades in the flank colour (green → yellow). The blade of the finisher your venom empowers is brighter: Flankstung → left (Flanksting Strike), Flanksbane → right (Flanksbane Fang). |
-| 3. Rear finisher (after Swiftskin's Sting) | The orb in the rear colour (red → yellow), plus the blade of the empowered finisher: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). |
+| 3. Rear finisher (after Swiftskin's Sting) | A glow around the orb in the rear colour (red → yellow), plus the blade of the empowered finisher: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). |
+
+The blades follow your buffs as they come and go: when they run out, the blades go dark without you casting
+anything. The game is read 20 times a second.
+
+A lit blade gets its colour added to the steel (like GIMP's Addition mode, 50% by default), so the texture shows
+through, and glows. Glows sit around the shape, never over it, and pulse: each pulse leaves the edge, drifts out
+until there is a gap, fades and starts again (every 2 seconds by default). Glows and colours are drawn by the plugin
+from each part's outline, traced from the art's transparency, and added to what is behind them.
 
 The area-of-effect combo doesn't change the blades. The tribute stones light up only while Reawakened, with the time
 left shown above them; the rubies glow for each Rattling Coil you have. The gauge value is shown on the orb.
 
 Colours you can change: recommended blade, flank, rear, liquid, tributes and coils. Each is a single colour or a
-two-colour gradient across the shape (top to bottom or left to right).
+two-colour gradient across the shape (top to bottom, or along the blades from tip to hilt). Under *Highlights* you
+can change the pulse (on/off, seconds per pulse, the gap), the glow's width and brightness, and turn additive
+blending off.
 
 ## Installing
 
@@ -75,7 +85,9 @@ and settings) and run on any platform.
 
 ### Gauge art
 
-The art is original (drawn after the game's own gauges) and lives in `art/` as SVG, one group per layer. A layer
+The art is original (drawn after the game's own gauges) and lives in `art/` as SVG, one group per layer. The plugin
+only needs the layers' images: glows and highlight colours are not art, they are drawn from the outlines of the
+`blade`, `vessel-ring`, `gem-socket` and `coil-socket` layers, traced from their transparency when the plugin starts. A layer
 can come with a height map (`data-pass="height"`, white = high), which `scripts/build_art.py` turns into lit,
 textured metal: relief, grime in the recesses, grain, scratches and highlights, with a light from straight above.
 A `matte` pass dulls parts such as leather, a `glow` pass is laid on top unlit (eyes). Every layer is then written

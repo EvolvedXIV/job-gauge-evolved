@@ -14,7 +14,9 @@
     <g data-layer="x" data-pass="glow">   painted on top unlit (eyes)
   Layers marked data-slot are drawn once per coin/diamond, moved from their reference slot (see #anchors).
     <g data-layer="x" data-pass="matte">  where it is dull rather than shiny (leather)
-  The blade layers (blade, hilt and serpent of the left half) are mirrored around x = 180 for the right half.
+  The blade and hilt layers (left half) are mirrored around x = 180 for the right half.
+  Glows and the lit blade's colour are not art: the plugin draws them from the traced outlines of the blade,
+  vessel-ring, gem-socket and coil-socket layers.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="160" viewBox="0 0 360 160">
   <defs>
@@ -151,28 +153,28 @@
   </g>
 
   <!-- ======================= Left blade and hilt (mirrored for the right) ======================= -->
-  <g data-layer="blade-halo" data-kind="mask">
-    <use href="#blade" fill="#fff" filter="url(#blur4)"/>
-    <use href="#blade" fill="#fff" filter="url(#blur2)"/>
+  <!-- The blade on its own: the plugin traces its outline for the blade's glow and colour. -->
+  <g data-layer="blade" data-kind="color" data-shade="metal" data-depth="2.6">
+    <use href="#blade" fill="#9aa2ad"/>
+    <path d="M104 70.4 L26 70.4 L4.6 76" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+  </g>
+  <g data-layer="blade" data-pass="height" filter="url(#hb)">
+    <!-- A ridge down the middle, bevels to both edges. -->
+    <use href="#blade" fill="url(#hBlade)"/>
   </g>
 
-  <g data-layer="blade-base" data-kind="color" data-shade="metal" data-depth="2.6">
+  <g data-layer="hilt" data-kind="color" data-shade="metal" data-depth="2.6">
     <!-- Serpent (behind the hilt): silver scales, red eye in the glow pass. -->
     <use href="#serpentBody" fill="none" stroke="#8b8d92" stroke-width="6" stroke-linecap="round"/>
     <use href="#serpentHead" fill="#8b8d92"/>
     <path d="M133.6 45.5 L141 45.9" stroke="#2a2b2e" stroke-width="0.5"/>
-    <!-- Blade: bright steel. -->
-    <use href="#blade" fill="#d5dae1"/>
-    <path d="M104 70.4 L26 70.4 L4.6 76" fill="none" stroke="#ffffff" stroke-width="0.5"/>
-    <!-- Hilt. -->
     <use href="#connector" fill="#737579"/>
     <use href="#collarSpikes" fill="#8b8d92"/>
     <use href="#collar" fill="#737579"/>
     <use href="#post" fill="#8b8d92"/>
     <use href="#postKnobs" fill="#9b9da2"/>
   </g>
-  <g data-layer="blade-base" data-pass="height" filter="url(#hb)">
-    <!-- Serpent: a rounded body with scales cut into it. -->
+  <g data-layer="hilt" data-pass="height" filter="url(#hb)">
     <use href="#serpentBody" fill="none" stroke="#505050" stroke-width="6" stroke-linecap="round"/>
     <use href="#serpentBody" fill="none" stroke="#909090" stroke-width="4.4" stroke-linecap="round"/>
     <use href="#serpentBody" fill="none" stroke="#c8c8c8" stroke-width="2.8" stroke-linecap="round"/>
@@ -183,9 +185,6 @@
     <use href="#serpentHead" fill="url(#scales)" opacity="0.5"/>
     <path d="M133.6 45.5 L141 45.9" stroke="#202020" stroke-width="0.6"/>
     <circle cx="139" cy="43.7" r="1.3" fill="#303030"/>
-    <!-- Blade: a ridge down the middle, bevels to both edges. -->
-    <use href="#blade" fill="url(#hBlade)"/>
-    <!-- Hilt. -->
     <use href="#connector" fill="url(#hBarV)"/>
     <path d="M131 71.5 L131 80.5 M137 71.5 L137 80.5 M143 71.5 L143 80.5" stroke="#ffffff" stroke-width="1.6"/>
     <path d="M128 72.5 L128 79.5 M134 72.5 L134 79.5 M140 72.5 L140 79.5 M146 72.5 L146 79.5" stroke="#202020" stroke-width="0.5"/>
@@ -198,27 +197,12 @@
     <use href="#postKnobs" fill="#d0d0d0"/>
     <path d="M122 45.6 L122 54.4 M118.8 50 L125.2 50 M122 97.6 L122 106.4 M118.8 102 L125.2 102 M122 69.6 L122 82.4 M117.9 76 L126.1 76" stroke="#ffffff" stroke-width="0.6" filter="url(#hb2)"/>
   </g>
-  <g data-layer="blade-base" data-pass="glow">
+  <g data-layer="hilt" data-pass="glow">
     <circle cx="139" cy="43.7" r="1.25" fill="#d0121a"/>
     <circle cx="138.6" cy="43.3" r="0.4" fill="#ff9a9a"/>
   </g>
 
-  <g data-layer="blade-tint" data-kind="mask">
-    <use href="#blade" fill="#d6d6d6"/>
-    <use href="#bladeTop" fill="#ffffff"/>
-    <path d="M100 76 L8 76" stroke="#ffffff" stroke-width="0.6"/>
-    <use href="#blade" fill="none" stroke="#ffffff" stroke-width="0.7"/>
-  </g>
-
   <!-- ======================= Orb (Serpent Offerings) ======================= -->
-  <!-- Rear: a glow behind the orb and its bars only. -->
-  <g data-layer="vessel-halo" data-kind="mask">
-    <circle cx="180" cy="76" r="32" fill="#fff" filter="url(#blur7)"/>
-    <circle cx="180" cy="76" r="30" fill="#fff" filter="url(#blur2)"/>
-    <use href="#coinBar" fill="#fff" filter="url(#blur4)"/>
-    <use href="#diamondBar" fill="#fff" filter="url(#blur4)"/>
-  </g>
-
   <g data-layer="vessel-back" data-kind="color">
     <use href="#glass" fill="url(#glassBack)"/>
   </g>
@@ -246,7 +230,8 @@
     <ellipse cx="191" cy="62" rx="3.2" ry="2.2" fill="#ffffff" opacity="0.9" filter="url(#soft)"/>
   </g>
 
-  <g data-layer="vessel-frame" data-kind="color" data-shade="metal" data-depth="2.6">
+  <!-- What hangs off the orb: the coin and diamond bars, the banners and the pendant. -->
+  <g data-layer="vessel-mounts" data-kind="color" data-shade="metal" data-depth="2.6">
     <use href="#banner" fill="#4a3426" transform="translate(360 0) scale(-1 1)"/>
     <path d="M145 133 L156 133 L156 140 L150.5 144 L145 140 Z" fill="#8b8d92" transform="translate(360 0) scale(-1 1)"/>
     <use href="#banner" fill="#4a3426"/>
@@ -254,13 +239,8 @@
     <use href="#pendant" fill="#8b8d92"/>
     <use href="#coinBar" fill="#737579"/>
     <use href="#diamondBar" fill="#737579"/>
-    <use href="#ring" fill="#8b8d92"/>
-    <use href="#fleurTop" fill="#9b9da2"/>
-    <use href="#fleurBottom" fill="#9b9da2"/>
-    <use href="#sideCross" fill="#9b9da2"/>
-    <use href="#sideCross" fill="#9b9da2" transform="translate(360 0) scale(-1 1)"/>
   </g>
-  <g data-layer="vessel-frame" data-pass="height" filter="url(#hb)">
+  <g data-layer="vessel-mounts" data-pass="height" filter="url(#hb)">
     <g id="bannerHeight">
       <use href="#banner" fill="#707070"/>
       <path d="M146.2 109 L146.2 132 M154.8 109 L154.8 132" stroke="#383838" stroke-width="0.5" stroke-dasharray="1 0.8"/>
@@ -272,6 +252,21 @@
     <use href="#pendant" fill="url(#hBarH)"/>
     <use href="#coinBar" fill="url(#hBarV)"/>
     <use href="#diamondBar" fill="url(#hBarV)"/>
+  </g>
+  <g data-layer="vessel-mounts" data-pass="matte">
+    <path d="M145 108 L156 108 L156 133 L145 133 Z" fill="#fff"/>
+    <path d="M145 108 L156 108 L156 133 L145 133 Z" fill="#fff" transform="translate(360 0) scale(-1 1)"/>
+  </g>
+
+  <!-- The ring around the glass: the plugin traces its outline for the rear glow. -->
+  <g data-layer="vessel-ring" data-kind="color" data-shade="metal" data-depth="2.6">
+    <use href="#ring" fill="#8b8d92"/>
+    <use href="#fleurTop" fill="#9b9da2"/>
+    <use href="#fleurBottom" fill="#9b9da2"/>
+    <use href="#sideCross" fill="#9b9da2"/>
+    <use href="#sideCross" fill="#9b9da2" transform="translate(360 0) scale(-1 1)"/>
+  </g>
+  <g data-layer="vessel-ring" data-pass="height" filter="url(#hb)">
     <use href="#ring" fill="url(#hRing)"/>
     <!-- Engraved pointed arches around the ring. -->
     <g fill="none" stroke="#303030" stroke-width="0.45">
@@ -285,17 +280,7 @@
     <use href="#sideCross" fill="#e0e0e0" transform="translate(360 0) scale(-1 1)"/>
   </g>
 
-  <g data-layer="vessel-frame" data-pass="matte">
-    <path d="M145 108 L156 108 L156 133 L145 133 Z" fill="#fff"/>
-    <path d="M145 108 L156 108 L156 133 L145 133 Z" fill="#fff" transform="translate(360 0) scale(-1 1)"/>
-  </g>
-
   <!-- ======================= Tribute coin (one per slot) ======================= -->
-  <g data-layer="gem-halo" data-kind="mask" data-slot="gem">
-    <circle cx="180" cy="33" r="7.5" fill="#fff" filter="url(#blur2)"/>
-    <circle cx="180" cy="33" r="7" fill="#fff" filter="url(#blur4)"/>
-  </g>
-
   <g data-layer="gem-socket" data-kind="color" data-slot="gem" data-shade="metal" data-depth="2.2">
     <use href="#coin" fill="#8b8d92"/>
   </g>
@@ -330,11 +315,6 @@
   </g>
 
   <!-- ======================= Rattling Coil diamond (one per slot) ======================= -->
-  <g data-layer="coil-halo" data-kind="mask" data-slot="coil">
-    <use href="#lozengeGem" fill="#fff" filter="url(#blur2)"/>
-    <use href="#lozengeGem" fill="#fff" filter="url(#blur4)"/>
-  </g>
-
   <g data-layer="coil-socket" data-kind="color" data-slot="coil" data-shade="metal" data-depth="2.4">
     <path d="M180 107 L182 111.5 L178 111.5 Z" fill="#9b9da2"/>
     <use href="#lozengeOuter" fill="#8b8d92"/>

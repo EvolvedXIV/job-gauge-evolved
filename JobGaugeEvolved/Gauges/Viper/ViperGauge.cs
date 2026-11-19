@@ -21,8 +21,8 @@ internal sealed unsafe class ViperGauge : IJobGauge
     private const string VipersightAddon = "JobHudRDB0";
     private const string SerpentOfferingsAddon = "JobHudRDB1";
 
-    // Seconds for one pulse of a lit highlight.
-    private const double PulsePeriod = 1.6;
+    // Coins and rubies are small: their glow is half the blades'.
+    private const float StoneGlowSize = 0.5f;
 
     private readonly ViperConfig config;
     private readonly ColorSpec surfaceColor = new();
@@ -130,45 +130,48 @@ internal sealed unsafe class ViperGauge : IJobGauge
         var s = snapshot;
         var h = highlights;
         var layout = canvas.Layout;
+        var glow = config.Glow;
 
-        // Lit glows breathe between 55% and 100%, as the game's do.
-        float Pulse(double phase) =>
-            config.AnimateGlow ? (float)(0.775 + 0.225 * Math.Sin(time * 2 * Math.PI / PulsePeriod + phase)) : 1f;
-
-        ColorSpec GlowColor(BladeGlow glow) => glow switch
+        ColorSpec GlowColor(BladeGlow g) => g switch
         {
             BladeGlow.Recommended => config.RecommendColor,
             BladeGlow.Rear => config.RearColor,
             _ => config.FlankColor,
         };
 
-        float Strength(BladeGlow glow) => glow switch
+        float Strength(BladeGlow g) => g switch
         {
             BladeGlow.None => 0f,
             BladeGlow.FlankDim => config.OtherBladeIntensity,
             _ => 1f,
         };
 
-        // Rear: a glow behind the orb, under everything else.
+        var blades = new[] { (Glow: h.Left, Mirror: false), (Glow: h.Right, Mirror: true) };
+
+        // 1. Glows behind everything: around the orb's ring for rear, around each lit blade.
         if (h.Center) {
-            canvas.Layer(ViperLayers.VesselHalo, config.RearColor, Pulse(0));
+            canvas.Glow(ViperLayers.VesselRing, config.RearColor, glow, time);
         }
 
-        // Blades: left is the Steel Fangs button, right (mirrored) the Reaving Fangs button. A lit blade glows and
-        // turns into a coloured blade, like the game's.
-        foreach (var (glow, mirror) in new[] { (h.Left, false), (h.Right, true) }) {
-            var strength = Strength(glow);
-            if (strength > 0f) {
-                canvas.Layer(ViperLayers.BladeHalo, GlowColor(glow), strength * Pulse(mirror ? 1.2 : 0), mirror);
-            }
-
-            canvas.Layer(ViperLayers.BladeBase, mirror: mirror);
-            if (strength > 0f) {
-                canvas.Layer(ViperLayers.BladeTint, GlowColor(glow), strength, mirror);
+        foreach (var (g, mirror) in blades) {
+            if (Strength(g) > 0f) {
+                canvas.Glow(ViperLayers.Blade, GlowColor(g), glow, time, Strength(g), mirror);
             }
         }
 
-        // Serpent Offerings: the orb fills from the bottom; 50 (enough to Reawaken) is the equator.
+        // 2. Blades, their colour added on top (the steel shows through), then the hilts over the blades' bases.
+        foreach (var (g, mirror) in blades) {
+            canvas.Layer(ViperLayers.Blade, mirror: mirror);
+            if (Strength(g) > 0f) {
+                canvas.Tint(ViperLayers.Blade, GlowColor(g), config.BladeTintStrength * Strength(g), mirror);
+            }
+        }
+
+        foreach (var (_, mirror) in blades) {
+            canvas.Layer(ViperLayers.Hilt, mirror: mirror);
+        }
+
+        // 3. Serpent Offerings: the orb fills from the bottom; 50 (enough to Reawaken) is the equator.
         var hasOfferings = ViperLogic.HasSerpentOfferings(s.Level);
         canvas.Layer(ViperLayers.VesselBack);
         if (hasOfferings) {
@@ -185,7 +188,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
                     var radius = liquid.W / 2f;
                     var fromCentre = level - (liquid.Y + liquid.H / 2f);
                     var halfChord = MathF.Sqrt(MathF.Max(0f, radius * radius - fromCentre * fromCentre));
-                    var bob = config.AnimateGlow ? (float)Math.Sin(time * 2.3) * 0.35f : 0f;
+                    var bob = glow.Pulse ? (float)Math.Sin(time * 2.3) * 0.35f : 0f;
                     surfaceColor.A = config.LiquidColor.Direction == GradientDirection.TopToBottom
                         ? config.LiquidColor.At(cropTop)
                         : config.LiquidColor.At(0.5f);
@@ -196,15 +199,16 @@ internal sealed unsafe class ViperGauge : IJobGauge
         }
 
         canvas.Layer(ViperLayers.VesselGlass);
-        canvas.Layer(ViperLayers.VesselFrame);
+        canvas.Layer(ViperLayers.VesselMounts);
+        canvas.Layer(ViperLayers.VesselRing);
 
-        // Anguine Tributes: metal coins that turn into precious stones, pulsing, while Reawakened.
+        // 4. Anguine Tributes: metal coins that turn into glowing stones while Reawakened.
         var tributes = ViperLogic.TributeMax(s.Level);
         for (var i = 0; i < tributes; i++) {
             var offset = layout.SlotOffset(ViperLayers.GemSlot, i, tributes);
             var lit = s.Reawakened && i < s.AnguineTribute;
             if (lit) {
-                canvas.Layer(ViperLayers.GemHalo, config.TributeColor, 0.9f * Pulse(i * 0.6), offset: offset);
+                canvas.Glow(ViperLayers.GemSocket, config.TributeColor, glow, time, 1f, offset: offset, size: StoneGlowSize);
             }
 
             canvas.Layer(ViperLayers.GemSocket, offset: offset);
@@ -213,13 +217,13 @@ internal sealed unsafe class ViperGauge : IJobGauge
             }
         }
 
-        // Rattling Coils: rubies, lit from behind while available.
+        // 5. Rattling Coils: rubies, lit from behind while available.
         var coils = config.ShowCoils ? ViperLogic.CoilMax(s.Level) : 0;
         for (var i = 0; i < coils; i++) {
             var offset = layout.SlotOffset(ViperLayers.CoilSlot, i, coils);
             var lit = i < s.RattlingCoils;
             if (lit) {
-                canvas.Layer(ViperLayers.CoilHalo, config.CoilColor, 0.8f, offset: offset);
+                canvas.Glow(ViperLayers.CoilSocket, config.CoilColor, glow, time, 1f, offset: offset, size: StoneGlowSize);
             }
 
             canvas.Layer(ViperLayers.CoilSocket, offset: offset);
@@ -228,6 +232,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
             }
         }
 
+        // 6. Numbers.
         if (config.ShowValue && hasOfferings) {
             var anchor = layout.Anchor(ViperLayers.ValueAnchor);
             canvas.Text(text, s.SerpentOffering.ToString(), anchor.Point, anchor.Value("height"));
@@ -250,7 +255,17 @@ internal sealed unsafe class ViperGauge : IJobGauge
         changed |= Widgets.ColorSetting("Flank finisher", config.FlankColor, ViperConfig.DefaultFlank,
             "After Hunter's Sting: both blades light up, because Flanksting Strike and Flanksbane Fang are flank attacks.");
         changed |= Widgets.ColorSetting("Rear finisher", config.RearColor, ViperConfig.DefaultRear,
-            "After Swiftskin's Sting: a glow behind the Serpent Offerings orb, because Hindsting Strike and Hindsbane Fang are rear attacks.");
+            "After Swiftskin's Sting: a glow around the Serpent Offerings orb, because Hindsting Strike and Hindsbane Fang are rear attacks.");
+        var tint = config.BladeTintStrength * 100f;
+        ImGui.SetNextItemWidth(Widgets.ItemWidth);
+        if (ImGui.SliderFloat("Blade colour strength", ref tint, 0f, 100f, "%.0f%%")) {
+            config.BladeTintStrength = tint / 100f;
+            changed = true;
+        }
+
+        Widgets.HelpMarker("A lit blade's colour is added to the steel, like GIMP's Addition mode at this opacity, so the " +
+                           "texture shows through. The glow around the blade is set under Highlights.");
+
         var intensity = config.OtherBladeIntensity * 100f;
         ImGui.SetNextItemWidth(Widgets.ItemWidth);
         if (ImGui.SliderFloat("Other blade at the flank step", ref intensity, 0f, 100f, "%.0f%%")) {
@@ -258,8 +273,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
             changed = true;
         }
 
-        Widgets.HelpMarker("At the flank finisher, the blade whose finisher your venom does not empower is drawn this bright.");
-        changed |= ImGui.Checkbox("Pulse lit highlights", ref config.AnimateGlow);
+        Widgets.HelpMarker("At the flank finisher, the blade whose finisher your venom does not empower is lit this much.");
 
         Widgets.SectionHeader("Serpent Offerings");
         changed |= Widgets.ColorSetting("Liquid", config.LiquidColor, ViperConfig.DefaultLiquid);
@@ -287,6 +301,8 @@ internal sealed unsafe class ViperGauge : IJobGauge
                               $"Reawakened: {s.ReawakenedTime:0.0}s   Rattling Coils: {s.RattlingCoils}");
         ImGui.TextUnformatted($"Plugin: left {highlights.Left}, right {highlights.Right}, centre {highlights.Center}");
         ImGui.TextUnformatted($"Maxima from level: tributes {ViperLogic.TributeMax(s.Level)}, coils {ViperLogic.CoilMax(s.Level)}");
+        ImGui.TextUnformatted($"Additive blending: {(AdditiveBlend.Available ? "on" : "unavailable")}   Shapes traced: " +
+                              string.Join(", ", Art.Shapes.Traced().Select(t => $"{t.Layer} ({t.Points} points)")));
 
         Widgets.SectionHeader("The game's own view");
         var actions = ActionManager.Instance();

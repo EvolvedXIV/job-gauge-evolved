@@ -13,8 +13,8 @@ public sealed class ViperConfig : GaugeConfig
     /// <summary>How bright the blade whose finisher is not empowered by your venom is at the flank step.</summary>
     public float OtherBladeIntensity = 0.4f;
 
-    /// <summary>Let lit highlights pulse gently.</summary>
-    public bool AnimateGlow = true;
+    /// <summary>How strongly a lit blade's colour is added to the steel: 0.5 is like GIMP's Addition at 50%.</summary>
+    public float BladeTintStrength = 0.5f;
 
     // Serpent Offerings.
     public ColorSpec LiquidColor = DefaultLiquid();
@@ -58,5 +58,6 @@ public sealed class ViperConfig : GaugeConfig
         }
 
         OtherBladeIntensity = float.IsFinite(OtherBladeIntensity) ? Math.Clamp(OtherBladeIntensity, 0f, 1f) : 0.4f;
+        BladeTintStrength = float.IsFinite(BladeTintStrength) ? Math.Clamp(BladeTintStrength, 0f, 1f) : 0.5f;
     }
 }

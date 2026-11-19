@@ -14,7 +14,7 @@ public class ViperLogicTests
         new(level, combo, timer >= 0 ? timer : combo == 0 ? 0f : 20f, steel, reavers, venom, 0f, 0, 0, 0);
 
     [Theory]
-    [InlineData(false, false, Rec, Rec)]   // opener: either button
+    [InlineData(false, false, Off, Off)]   // no buff: nothing recommended
     [InlineData(true, false, Rec, Off)]    // Honed Steel: Steel Fangs
     [InlineData(false, true, Off, Rec)]    // Honed Reavers: Reaving Fangs
     public void Step1FollowsTheHonedBuff(bool steel, bool reavers, BladeGlow left, BladeGlow right)
@@ -24,7 +24,7 @@ public class ViperLogicTests
     }
 
     [Theory]
-    [InlineData(ViperVenom.None, Rec, Rec)]
+    [InlineData(ViperVenom.None, Off, Off)]
     [InlineData(ViperVenom.Flankstung, Rec, Off)]
     [InlineData(ViperVenom.Flanksbane, Rec, Off)]
     [InlineData(ViperVenom.Hindstung, Off, Rec)]
@@ -86,14 +86,30 @@ public class ViperLogicTests
     }
 
     [Fact]
+    public void LosingTheBuffsTurnsTheBladesOff()
+    {
+        // Same combo state, buffs gone: nothing is recommended any more, with no cast in between.
+        Assert.Equal((Rec, Off), Blades(ViperLogic.Evaluate(State(steel: true))));
+        Assert.Equal((Off, Off), Blades(ViperLogic.Evaluate(State())));
+        Assert.Equal((Off, Rec), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs, ViperVenom.Hindsbane))));
+        Assert.Equal((Off, Off), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs))));
+
+        // The finisher's positional comes from the combo, so it stays.
+        Assert.Equal((BladeGlow.Flank, BladeGlow.Flank), Blades(ViperLogic.Evaluate(State(ViperIds.HuntersSting))));
+        Assert.True(ViperLogic.Evaluate(State(ViperIds.SwiftskinsSting)).Center);
+
+        static (BladeGlow, BladeGlow) Blades(ViperHighlights h) => (h.Left, h.Right);
+    }
+
+    [Fact]
     public void OnlyTheButtonsThatExistAreRecommendedAtLowLevels()
     {
-        // Level 9: no Reaving Fangs yet.
-        Assert.Equal(new ViperHighlights(ViperStep.Start, Rec, Off, false), ViperLogic.Evaluate(State(level: 9)));
+        // Level 9: no Reaving Fangs yet (Honed Reavers can't exist then anyway).
+        Assert.Equal(new ViperHighlights(ViperStep.Start, Off, Off, false), ViperLogic.Evaluate(State(reavers: true, level: 9)));
 
         // Level 19: no Swiftskin's Sting yet, even with a rear venom (which can't exist then anyway).
         Assert.Equal(
-            new ViperHighlights(ViperStep.Second, Rec, Off, false),
+            new ViperHighlights(ViperStep.Second, Off, Off, false),
             ViperLogic.Evaluate(State(ViperIds.SteelFangs, ViperVenom.Hindstung, level: 19)));
 
         // Level 4: Steel Fangs has no follow-up yet.
@@ -132,7 +148,7 @@ public class ViperLogicTests
     {
         var expected = new[]
         {
-            new ViperHighlights(ViperStep.Start, Rec, Rec, false),
+            new ViperHighlights(ViperStep.Start, Off, Off, false),
             new ViperHighlights(ViperStep.Start, Rec, Off, false),
             new ViperHighlights(ViperStep.Start, Off, Rec, false),
             new ViperHighlights(ViperStep.Second, Rec, Off, false),

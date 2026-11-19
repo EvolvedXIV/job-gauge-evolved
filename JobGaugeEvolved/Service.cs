@@ -19,5 +19,6 @@ internal sealed class Service
     [PluginService] public static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] public static IPlayerState PlayerState { get; private set; } = null!;
     [PluginService] public static ITextureProvider TextureProvider { get; private set; } = null!;
+    [PluginService] public static ITextureReadbackProvider TextureReadbackProvider { get; private set; } = null!;
     [PluginService] public static IAddonLifecycle AddonLifecycle { get; private set; } = null!;
 }

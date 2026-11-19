@@ -79,6 +79,7 @@ internal sealed class ConfigWindow : Window
         if (changed || gauges.MovedSinceLastCheck) {
             gauges.MovedSinceLastCheck = false;
             config.Sanitize();
+            gauges.RequestRead();
             unsaved = true;
         }
 
@@ -223,6 +224,39 @@ internal sealed class ConfigWindow : Window
             changed = true;
         }
 
+        changed |= DrawGlow(c.Glow);
+        return changed;
+    }
+
+    private static bool DrawGlow(GlowStyle glow)
+    {
+        var changed = false;
+        Widgets.SectionHeader("Highlights");
+
+        changed |= ImGui.Checkbox("Pulse", ref glow.Pulse);
+        Widgets.HelpMarker("Each pulse, the glow leaves the edge, drifts outward until there is a gap, fades and starts " +
+                           "again, like energy coming off the gauge. Off: the glow stays at the edge.");
+
+        using (ImRaii.Disabled(!glow.Pulse)) {
+            ImGui.SetNextItemWidth(Widgets.ItemWidth);
+            changed |= ImGui.SliderFloat("Seconds per pulse", ref glow.Period, GlowStyle.MinPeriod, GlowStyle.MaxPeriod, "%.1f s");
+            ImGui.SetNextItemWidth(Widgets.ItemWidth);
+            changed |= ImGui.SliderFloat("Gap at the end of a pulse", ref glow.Gap, 0f, GlowStyle.MaxGap, "%.0f px");
+        }
+
+        ImGui.SetNextItemWidth(Widgets.ItemWidth);
+        changed |= ImGui.SliderFloat("Glow width", ref glow.Width, GlowStyle.MinWidth, GlowStyle.MaxWidth, "%.0f px");
+
+        var brightness = glow.Intensity * 100f;
+        ImGui.SetNextItemWidth(Widgets.ItemWidth);
+        if (ImGui.SliderFloat("Glow brightness", ref brightness, 0f, GlowStyle.MaxIntensity * 100f, "%.0f%%")) {
+            glow.Intensity = brightness / 100f;
+            changed = true;
+        }
+
+        changed |= ImGui.Checkbox("Additive blending", ref glow.Additive);
+        Widgets.HelpMarker("Glows and blade colours are added to what is behind them, like GIMP's Addition mode. " +
+                           "Turn this off if they look wrong; they are then painted over instead.");
         return changed;
     }
 

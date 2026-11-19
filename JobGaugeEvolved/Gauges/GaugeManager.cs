@@ -14,8 +14,8 @@ using JobGaugeEvolved.Rendering;
 namespace JobGaugeEvolved.Gauges;
 
 /// <summary>
-/// Picks the gauge for the current job, reads the game for it every frame, hides the game's own gauge, and draws
-/// the overlay.
+/// Picks the gauge for the current job, reads the game for it 20 times a second, hides the game's own gauge, and
+/// draws the overlay every frame from the last reading.
 /// </summary>
 internal sealed class GaugeManager : IDisposable
 {
@@ -24,6 +24,9 @@ internal sealed class GaugeManager : IDisposable
     private readonly GaugeText text = new();
     private readonly Dictionary<(IJobGauge, string), GaugePlacement> lastHud = new();
     private readonly System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
+
+    // Reading the game 20 times a second is plenty; drawing still happens every frame.
+    private readonly UpdateThrottle reads = new(TimeSpan.FromMilliseconds(50));
 
     private IJobGauge? visible;
 
@@ -40,15 +43,34 @@ internal sealed class GaugeManager : IDisposable
     public IReadOnlyList<IJobGauge> Gauges { get; }
 
     /// <summary>Lets the visible gauge be dragged with the mouse (set by the settings window).</summary>
-    public bool Unlocked { get; set; }
+    public bool Unlocked
+    {
+        get;
+        set { field = value; reads.RunNext(); }
+    }
 
     /// <summary>Shows <see cref="PreviewGauge"/> with made-up data, on any job (set by the settings window).</summary>
-    public bool Preview { get; set; }
+    public bool Preview
+    {
+        get;
+        set { field = value; reads.RunNext(); }
+    }
 
-    public IJobGauge? PreviewGauge { get; set; }
+    public IJobGauge? PreviewGauge
+    {
+        get;
+        set { field = value; reads.RunNext(); }
+    }
 
     /// <summary>The previewed state, or null to cycle through all of them.</summary>
-    public int? PreviewState { get; set; }
+    public int? PreviewState
+    {
+        get;
+        set { field = value; reads.RunNext(); }
+    }
+
+    /// <summary>Makes a changed setting (e.g. a gauge turned on or off) apply without waiting for the next read.</summary>
+    public void RequestRead() => reads.RunNext();
 
     /// <summary>Set when a drag changed a position, so the settings window saves it.</summary>
     public bool MovedSinceLastCheck { get; set; }
@@ -62,6 +84,7 @@ internal sealed class GaugeManager : IDisposable
         Service.Framework.Update -= OnUpdate;
         hider.Dispose();
         text.Dispose();
+        AdditiveBlend.Dispose();
         foreach (var gauge in Gauges) {
             gauge.Dispose();
         }
@@ -69,6 +92,10 @@ internal sealed class GaugeManager : IDisposable
 
     private void OnUpdate(IFramework framework)
     {
+        if (!reads.ShouldRun(clock.Elapsed)) {
+            return;
+        }
+
         try {
             var job = Service.PlayerState.IsLoaded ? Service.PlayerState.ClassJob.RowId : 0;
             var loggedIn = Service.ClientState.IsLoggedIn && Service.PlayerState.IsLoaded;
@@ -132,6 +159,11 @@ internal sealed class GaugeManager : IDisposable
 
         var bounds = gauge.Bounds;
         var origin = placement.Centre - gauge.Centre * placement.Scale;    // screen position of unit (0, 0)
+
+        // The window also covers the glows, which reach beyond the art; dragging uses the art alone.
+        var reach = gauge.Config.Glow.Gap + gauge.Config.Glow.Width + 2f;
+        var art = (Min: origin + bounds.Min * placement.Scale, Size: bounds.Size * placement.Scale);
+        bounds = new ArtBox(bounds.X - reach, bounds.Y - reach, bounds.W + 2 * reach, bounds.H + 2 * reach);
         var topLeft = origin + bounds.Min * placement.Scale;
         var size = bounds.Size * placement.Scale;
 
@@ -151,11 +183,12 @@ internal sealed class GaugeManager : IDisposable
         try {
             if (ImGui.Begin($"###JobGaugeEvolved{gauge.Name}", flags)) {
                 var drawList = ImGui.GetWindowDrawList();
-                gauge.Draw(new GaugeCanvas(drawList, gauge.Art, origin, placement.Scale), text, ImGui.GetTime());
+                var canvas = new GaugeCanvas(drawList, gauge.Art, origin, placement.Scale, gauge.Config.Glow.Additive);
+                gauge.Draw(canvas, text, ImGui.GetTime());
 
                 if (Unlocked) {
-                    ImGui.SetCursorScreenPos(topLeft);
-                    ImGui.InvisibleButton("##move", size, ImGuiButtonFlags.MouseButtonLeft);
+                    ImGui.SetCursorScreenPos(art.Min);
+                    ImGui.InvisibleButton("##move", art.Size, ImGuiButtonFlags.MouseButtonLeft);
                     var active = ImGui.IsItemActive();
                     if (active && ImGui.IsMouseDragging(ImGuiMouseButton.Left)) {
                         GaugePlacement.Drag(gauge.Config, ImGui.GetIO().MouseDelta, following, placement.Centre);
@@ -163,8 +196,8 @@ internal sealed class GaugeManager : IDisposable
                     }
 
                     var outline = active || ImGui.IsItemHovered() ? 0xFF5EB2D6u : 0x995EB2D6u; // gold
-                    drawList.AddRect(topLeft, topLeft + size, outline, 4f, ImDrawFlags.None, 2f);
-                    drawList.AddText(topLeft + new Vector2(6, 4), 0xFFFFFFFFu, $"{gauge.Name}: drag to move");
+                    drawList.AddRect(art.Min, art.Min + art.Size, outline, 4f, ImDrawFlags.None, 2f);
+                    drawList.AddText(art.Min + new Vector2(6, 4), 0xFFFFFFFFu, $"{gauge.Name}: drag to move");
                 }
             }
         }
