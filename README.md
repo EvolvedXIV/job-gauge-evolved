@@ -19,7 +19,7 @@ the Steel Fangs button, the right blade for the Reaving Fangs button.
 | 1. Steel Fangs or Reaving Fangs | The blade of the button your Honed buff empowers: Honed Steel → left, Honed Reavers → right. Both when you have neither (opener). |
 | 2. Hunter's Sting or Swiftskin's Sting | The blade that leads to the finisher your venom empowers: a flank venom → left (Hunter's Sting), a rear venom → right (Swiftskin's Sting). Both when you have none. |
 | 3. Flank finisher (after Hunter's Sting) | Both blades in the flank colour (green → yellow). The blade of the finisher your venom empowers is brighter: Flankstung → left (Flanksting Strike), Flanksbane → right (Flanksbane Fang). |
-| 3. Rear finisher (after Swiftskin's Sting) | The vessel in the rear colour (red → yellow), plus the blade of the empowered finisher: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). |
+| 3. Rear finisher (after Swiftskin's Sting) | The orb in the rear colour (red → yellow), plus the blade of the empowered finisher: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). |
 
 The area-of-effect combo doesn't change the blades. The tribute stones light up only while Reawakened, with the time
 left shown above them; the rubies glow for each Rattling Coil you have. The gauge value is shown on the orb.
