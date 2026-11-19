@@ -8,8 +8,9 @@ and turned on or off per job.
 
 ### Viper
 
-The Vipersight blades and the Serpent Offerings gauge in one: a blade on each side of the Serpent Offerings
-vessel, the Anguine Tribute gems on top of the vessel and the Rattling Coils underneath. The left blade stands for
+The Vipersight blades and the Serpent Offerings gauge in one twinblade: a straight sword points out to each side,
+and their joined hilt in the middle is the Serpent Offerings vessel, with the Anguine Tribute gems on top of it and
+the Rattling Coils underneath. The left blade stands for
 the Steel Fangs button, the right blade for the Reaving Fangs button.
 
 | Combo step | What lights up |
