@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "width": 320,
+  "height": 150,
+  "scales": [
+    1,
+    2,
+    3
+  ],
+  "layers": {
+    "blade-halo": {
+      "x": 5,
+      "y": -12,
+      "w": 81,
+      "h": 173,
+      "kind": "mask",
+      "slot": null
+    },
+    "blade-base": {
+      "x": 21,
+      "y": -4,
+      "w": 57,
+      "h": 153,
+      "kind": "color",
+      "slot": null
+    },
+    "blade-tint": {
+      "x": 22,
+      "y": 24,
+      "w": 55,
+      "h": 124,
+      "kind": "mask",
+      "slot": null
+    },
+    "vessel-halo": {
+      "x": 63,
+      "y": 34,
+      "w": 194,
+      "h": 80,
+      "kind": "mask",
+      "slot": null
+    },
+    "vessel-back": {
+      "x": 86,
+      "y": 58,
+      "w": 148,
+      "h": 32,
+      "kind": "color",
+      "slot": null
+    },
+    "liquid": {
+      "x": 86,
+      "y": 58,
+      "w": 148,
+      "h": 32,
+      "kind": "mask",
+      "slot": null
+    },
+    "liquid-edge": {
+      "x": 155,
+      "y": 56,
+      "w": 11,
+      "h": 36,
+      "kind": "mask",
+      "slot": null
+    },
+    "vessel-frame": {
+      "x": 69,
+      "y": 43,
+      "w": 182,
+      "h": 54,
+      "kind": "color",
+      "slot": null
+    },
+    "vessel-rim": {
+      "x": 81,
+      "y": 53,
+      "w": 158,
+      "h": 42,
+      "kind": "mask",
+      "slot": null
+    },
+    "gem-socket": {
+      "x": 147,
+      "y": 19,
+      "w": 26,
+      "h": 30,
+      "kind": "color",
+      "slot": "gem"
+    },
+    "gem-halo": {
+      "x": 143,
+      "y": 16,
+      "w": 34,
+      "h": 36,
+      "kind": "mask",
+      "slot": "gem"
+    },
+    "gem-lit": {
+      "x": 152,
+      "y": 24,
+      "w": 16,
+      "h": 20,
+      "kind": "mask",
+      "slot": "gem"
+    },
+    "coil-socket": {
+      "x": 148,
+      "y": 99,
+      "w": 24,
+      "h": 26,
+      "kind": "color",
+      "slot": "coil"
+    },
+    "coil-halo": {
+      "x": 147,
+      "y": 99,
+      "w": 26,
+      "h": 26,
+      "kind": "mask",
+      "slot": "coil"
+    },
+    "coil-lit": {
+      "x": 152,
+      "y": 104,
+      "w": 16,
+      "h": 16,
+      "kind": "mask",
+      "slot": "coil"
+    }
+  },
+  "anchors": {
+    "centre": {
+      "x": 160,
+      "y": 75
+    },
+    "gem": {
+      "x": 160,
+      "y": 34,
+      "spacing": 24
+    },
+    "coil": {
+      "x": 160,
+      "y": 112,
+      "spacing": 21
+    },
+    "value": {
+      "x": 160,
+      "y": 74,
+      "height": 17
+    },
+    "timer": {
+      "x": 160,
+      "y": 11,
+      "height": 15
+    },
+    "liquid": {
+      "x": 86,
+      "y": 58,
+      "w": 148,
+      "h": 32
+    }
+  }
+}

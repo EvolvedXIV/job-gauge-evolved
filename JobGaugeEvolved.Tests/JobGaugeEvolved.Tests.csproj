@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+      Tests for the parts of the plugin that do not touch the game. The sources are compiled in directly, so
+      neither Dalamud nor Windows is needed to run them.
+    -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>14.0</LangVersion>
+        <IsPackable>false</IsPackable>
+        <Platforms>x64</Platforms>
+        <RootNamespace>JobGaugeEvolved.Tests</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="../JobGaugeEvolved/Configuration/ColorSpec.cs" Link="Plugin/ColorSpec.cs" />
+        <Compile Include="../JobGaugeEvolved/Configuration/GaugeConfig.cs" Link="Plugin/GaugeConfig.cs" />
+        <Compile Include="../JobGaugeEvolved/Configuration/ViperConfig.cs" Link="Plugin/ViperConfig.cs" />
+        <Compile Include="../JobGaugeEvolved/Gauges/GaugePlacement.cs" Link="Plugin/GaugePlacement.cs" />
+        <Compile Include="../JobGaugeEvolved/Rendering/ArtLayout.cs" Link="Plugin/ArtLayout.cs" />
+        <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperLayers.cs" Link="Plugin/ViperLayers.cs" />
+        <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperIds.cs" Link="Plugin/ViperIds.cs" />
+        <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperSnapshot.cs" Link="Plugin/ViperSnapshot.cs" />
+        <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperLogic.cs" Link="Plugin/ViperLogic.cs" />
+        <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperPreview.cs" Link="Plugin/ViperPreview.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="xunit" Version="2.9.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    </ItemGroup>
+</Project>
