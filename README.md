@@ -1,2 +1,2 @@
 # job-gauge-evolved
-Improved Job guages 
+Improved job gauges
