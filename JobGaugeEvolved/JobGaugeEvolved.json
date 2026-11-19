@@ -2,7 +2,7 @@
   "Author": "EvolvedXIV",
   "Name": "Job Gauge Evolved",
   "Punchline": "Improved, customisable job gauges.",
-  "Description": "Draws improved job gauges that you can resize, move and recolour, with a settings section and an on/off switch per job.\n\nViper: the Vipersight blades and the Serpent Offerings gauge in one. The blades show which button the game recommends from your Honed and venom buffs, the finisher's positional (flank on both blades, rear on the centre) and which finisher your venom empowers. Also shows the Anguine Tributes and the Reawaken timer, the gauge value and your Rattling Coils.\n\nOpen the settings with /jge.",
+  "Description": "Draws improved job gauges that you can resize, move and recolour, with a settings section and an on/off switch per job.\n\nViper: the Vipersight blades and the Serpent Offerings gauge in one. A blade lights up when the game would recommend its button from your Honed and venom buffs, and goes dark when the buffs run out. At the finisher both blades show a flank attack, or a glow around the orb shows a rear attack, and the blade of the finisher your venom empowers is brightest. Lit parts glow with a pulse of energy every 2 seconds, and a lit blade's colour is added to its steel. Also shows the Anguine Tributes and the Reawaken timer, the gauge value and your Rattling Coils.\n\nOpen the settings with /jge.",
   "InternalName": "JobGaugeEvolved",
   "RepoUrl": "https://github.com/EvolvedXIV/job-gauge-evolved",
   "ApplicableVersion": "any",

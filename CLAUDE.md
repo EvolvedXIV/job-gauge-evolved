@@ -10,10 +10,14 @@ Record what you learn here in that skill, not in this repository.
 `scripts/make_repo_json.py` and `.github/workflows/` have template copies in that skill (`templates/`, with the
 name replaced by `MyPlugin`). Keep both in step when changing either.
 
-Releases update this plugin's entry in `repo.json` in
-[EvolvedXIV/releases](https://github.com/EvolvedXIV/releases); the workflow needs the `RELEASES_TOKEN` secret.
+Releases update this plugin's entry in `repo.json` in [EvolvedXIV/releases](https://github.com/EvolvedXIV/releases).
+The Release workflow does that with the `RELEASES_TOKEN` secret; without it, run the workflow with *Update repo.json*
+off and update `repo.json` through a PR on that repository (see the skill's `reference/release.md`).
 
 Gauge art: edit the SVG in `art/`, then rebuild with `scripts/build_art.py` (see README) and commit the PNGs and
 `layout.json`. Layer and anchor names used in code are listed in `Gauges/<Job>/<Job>Layers.cs`; the tests check that
-each exists. A new job gauge implements `Gauges/IJobGauge.cs`, gets a config field in `PluginConfiguration` and is
-added to the list in `GaugeManager`.
+each exists. Glows and highlight colours are not art layers: `GaugeCanvas.Glow`/`Tint` draw them from a layer's
+outline (traced from its alpha by `ShapeLibrary`), additively via `AdditiveBlend`.
+
+A new job gauge implements `Gauges/IJobGauge.cs`, gets a config field in `PluginConfiguration` and is added to the
+list in `GaugeManager`.

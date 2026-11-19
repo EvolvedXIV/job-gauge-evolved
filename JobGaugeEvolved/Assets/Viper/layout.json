@@ -8,36 +8,20 @@
     3
   ],
   "layers": {
-    "blade-halo": {
-      "x": -1,
-      "y": 61,
-      "w": 114,
-      "h": 30,
-      "kind": "mask",
-      "slot": null
-    },
-    "blade-base": {
+    "blade": {
       "x": 4,
-      "y": 41,
-      "w": 156,
-      "h": 66,
+      "y": 70,
+      "w": 100,
+      "h": 12,
       "kind": "color",
       "slot": null
     },
-    "blade-tint": {
-      "x": 2,
-      "y": 69,
-      "w": 103,
-      "h": 14,
-      "kind": "mask",
-      "slot": null
-    },
-    "vessel-halo": {
-      "x": 134,
-      "y": 29,
-      "w": 92,
-      "h": 93,
-      "kind": "mask",
+    "hilt": {
+      "x": 100,
+      "y": 41,
+      "w": 60,
+      "h": 66,
+      "kind": "color",
       "slot": null
     },
     "vessel-back": {
@@ -72,7 +56,7 @@
       "kind": "color",
       "slot": null
     },
-    "vessel-frame": {
+    "vessel-mounts": {
       "x": 145,
       "y": 38,
       "w": 70,
@@ -80,13 +64,13 @@
       "kind": "color",
       "slot": null
     },
-    "gem-halo": {
-      "x": 165,
-      "y": 18,
-      "w": 30,
-      "h": 30,
-      "kind": "mask",
-      "slot": "gem"
+    "vessel-ring": {
+      "x": 150,
+      "y": 41,
+      "w": 60,
+      "h": 70,
+      "kind": "color",
+      "slot": null
     },
     "gem-socket": {
       "x": 173,
@@ -103,14 +87,6 @@
       "h": 12,
       "kind": "mask",
       "slot": "gem"
-    },
-    "coil-halo": {
-      "x": 167,
-      "y": 110,
-      "w": 26,
-      "h": 32,
-      "kind": "mask",
-      "slot": "coil"
     },
     "coil-socket": {
       "x": 171,

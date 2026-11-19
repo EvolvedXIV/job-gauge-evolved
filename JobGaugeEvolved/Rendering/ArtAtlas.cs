@@ -44,6 +44,9 @@ internal sealed class ArtAtlas
 
     public ArtLayout Layout { get; }
 
+    /// <summary>Outlines traced from the layers' transparency, for glows and colour fills.</summary>
+    public ShapeLibrary Shapes => field ??= new ShapeLibrary(this);
+
     /// <summary>The texture of a layer at a resolution, or false while it is still loading.</summary>
     public bool TryGetTexture(string layer, int scale, out IDalamudTextureWrap texture)
     {

@@ -39,10 +39,10 @@ public class ArtLayoutTests
     {
         var layout = ViperLayout();
         Assert.True(layout.Layer(ViperLayers.Liquid).IsMask);
-        Assert.False(layout.Layer(ViperLayers.BladeBase).IsMask);
+        Assert.False(layout.Layer(ViperLayers.Blade).IsMask);
         Assert.Equal(ViperLayers.GemSlot, layout.Layer(ViperLayers.GemLit).Slot);
         Assert.Equal(ViperLayers.CoilSlot, layout.Layer(ViperLayers.CoilSocket).Slot);
-        Assert.Null(layout.Layer(ViperLayers.VesselFrame).Slot);
+        Assert.Null(layout.Layer(ViperLayers.VesselRing).Slot);
         Assert.True(layout.Anchor(ViperLayers.GemSlot).Value("spacing") > 0);
     }
 
@@ -94,7 +94,7 @@ public class ArtLayoutTests
     {
         var layout = ViperLayout();
         var bounds = layout.Bounds(l => ViperLayers.IsMirrored(l.Name), slot => slot == ViperLayers.GemSlot ? 5 : 3, []);
-        var blade = layout.Layer(ViperLayers.BladeHalo).Box;
+        var blade = layout.Layer(ViperLayers.Blade).Box;
         Assert.True(bounds.X <= blade.X);
         Assert.True(bounds.Right >= blade.Mirror(layout.Width).Right);
 

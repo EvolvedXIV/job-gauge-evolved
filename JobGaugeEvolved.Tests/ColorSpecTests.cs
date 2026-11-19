@@ -53,6 +53,19 @@ public class ColorSpecTests
     }
 
     [Fact]
+    public void ColourAtAPointFollowsTheGradient()
+    {
+        var along = new ColorSpec(Red, Blue, GradientDirection.LeftToRight);
+        Assert.Equal(Red, along.AtPosition(0f, 0.7f));
+        Assert.Equal(Blue, along.AtPosition(0f, 0.7f, mirrored: true));   // the right blade's tip is on its right
+        Assert.Equal(new Vector4(0.5f, 0, 0.5f, 1), along.AtPosition(0.5f, 0f));
+
+        var down = new ColorSpec(Red, Blue);
+        Assert.Equal(Blue, down.AtPosition(0.2f, 1f, mirrored: true));
+        Assert.Equal(Red, new ColorSpec(Red) { B = Blue }.AtPosition(1f, 1f));
+    }
+
+    [Fact]
     public void PackIsAbgrWithRedInTheLowByte()
     {
         Assert.Equal(0xFF0000FFu, ColorSpec.Pack(Red));

@@ -71,6 +71,15 @@ public sealed class ColorSpec
         return mirrored ? (At(x1), At(x0), At(x0), At(x1)) : (At(x0), At(x1), At(x1), At(x0));
     }
 
+    /// <summary>
+    /// The colour at a point of a shape, given as fractions (0 to 1) across its width and down its height. On a
+    /// <paramref name="mirrored"/> shape a left-to-right gradient runs right to left (tip to hilt on both blades).
+    /// </summary>
+    public Vector4 AtPosition(float acrossWidth, float downHeight, bool mirrored = false) =>
+        Direction == GradientDirection.TopToBottom
+            ? At(downHeight)
+            : At(mirrored ? 1f - acrossWidth : acrossWidth);
+
     public ColorSpec Clone() => new() { Mode = Mode, A = A, B = B, Direction = Direction };
 
     public void CopyFrom(ColorSpec other)

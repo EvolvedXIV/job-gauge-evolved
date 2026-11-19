@@ -47,11 +47,13 @@ internal readonly record struct ViperHighlights(ViperStep Step, BladeGlow Left, 
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item>Step 1: Honed Steel recommends Steel Fangs (left), Honed Reavers Reaving Fangs (right), neither both.</item>
-/// <item>Step 2: a flank venom recommends Hunter's Sting (left), a rear venom Swiftskin's Sting (right), none both.</item>
+/// <item>Step 1: Honed Steel recommends Steel Fangs (left), Honed Reavers Reaving Fangs (right); neither, nothing.</item>
+/// <item>Step 2: a flank venom recommends Hunter's Sting (left), a rear venom Swiftskin's Sting (right); none, nothing.</item>
 /// <item>Flank finisher: both blades in the flank colour; the venom's button full strength, the other dimmed.</item>
 /// <item>Rear finisher: the centre in the rear colour, plus the venom's button.</item>
 /// </list>
+/// Without a buff nothing is recommended (like the game's hotbar), so the blades go dark as soon as the buffs run out.
+/// The positional at the finisher comes from the combo itself and shows either way.
 /// The area-of-effect combo never changes this: it leaves the single-target combo at step 1.
 /// </remarks>
 internal static class ViperLogic
@@ -76,26 +78,15 @@ internal static class ViperLogic
         var step = StepOf(s);
         switch (step) {
             case ViperStep.Start: {
-                // Without Reaving Fangs (below level 10) Steel Fangs is the only opener.
-                var hasRight = s.Level >= ViperIds.ReavingFangsLevel;
-                var left = s.HonedSteel || !s.HonedReavers || !hasRight;
-                var right = hasRight && (s.HonedReavers || !s.HonedSteel);
-                return new ViperHighlights(step, Lit(left), Lit(right), false);
+                // Reaving Fangs only exists from level 10.
+                var right = s.HonedReavers && s.Level >= ViperIds.ReavingFangsLevel;
+                return new ViperHighlights(step, Lit(s.HonedSteel), Lit(right), false);
             }
 
             case ViperStep.Second: {
-                var hasRight = s.Level >= ViperIds.SwiftskinsStingLevel;
-                var (left, right) = s.Venom switch
-                {
-                    ViperVenom.Flankstung or ViperVenom.Flanksbane => (true, false),
-                    ViperVenom.Hindstung or ViperVenom.Hindsbane => (false, true),
-                    _ => (true, true),
-                };
-
-                if (!hasRight) {
-                    (left, right) = (true, false);
-                }
-
+                // Swiftskin's Sting only exists from level 20.
+                var left = s.Venom is ViperVenom.Flankstung or ViperVenom.Flanksbane;
+                var right = s.Venom is ViperVenom.Hindstung or ViperVenom.Hindsbane && s.Level >= ViperIds.SwiftskinsStingLevel;
                 return new ViperHighlights(step, Lit(left), Lit(right), false);
             }
 

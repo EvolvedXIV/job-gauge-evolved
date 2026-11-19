@@ -78,6 +78,37 @@ public class PlacementAndConfigTests
     }
 
     [Fact]
+    public void GlowSettingsAreClamped()
+    {
+        var config = new ViperConfig
+        {
+            Glow = new GlowStyle { Width = 500, Gap = -3, Period = 0.01f, Intensity = float.NaN },
+            BladeTintStrength = 7,
+        };
+        config.Sanitize();
+        Assert.Equal(GlowStyle.MaxWidth, config.Glow.Width);
+        Assert.Equal(0f, config.Glow.Gap);
+        Assert.Equal(GlowStyle.MinPeriod, config.Glow.Period);
+        Assert.Equal(0.9f, config.Glow.Intensity);
+        Assert.Equal(1f, config.BladeTintStrength);
+
+        config.Glow = null!;
+        config.Sanitize();
+        Assert.NotNull(config.Glow);
+    }
+
+    [Fact]
+    public void GlowDefaultsPulseEveryTwoSecondsWithAGap()
+    {
+        var glow = new ViperConfig().Glow;
+        Assert.True(glow.Pulse);
+        Assert.Equal(2f, glow.Period);
+        Assert.True(glow.Gap > 0);
+        Assert.True(glow.Additive);
+        Assert.Equal(0.5f, new ViperConfig().BladeTintStrength);
+    }
+
+    [Fact]
     public void DefaultsMatchTheGame()
     {
         var config = new ViperConfig();

@@ -15,9 +15,13 @@
     <ItemGroup>
         <Compile Include="../JobGaugeEvolved/Configuration/ColorSpec.cs" Link="Plugin/ColorSpec.cs" />
         <Compile Include="../JobGaugeEvolved/Configuration/GaugeConfig.cs" Link="Plugin/GaugeConfig.cs" />
+        <Compile Include="../JobGaugeEvolved/Configuration/GlowStyle.cs" Link="Plugin/GlowStyle.cs" />
         <Compile Include="../JobGaugeEvolved/Configuration/ViperConfig.cs" Link="Plugin/ViperConfig.cs" />
         <Compile Include="../JobGaugeEvolved/Gauges/GaugePlacement.cs" Link="Plugin/GaugePlacement.cs" />
+        <Compile Include="../JobGaugeEvolved/Gauges/UpdateThrottle.cs" Link="Plugin/UpdateThrottle.cs" />
         <Compile Include="../JobGaugeEvolved/Rendering/ArtLayout.cs" Link="Plugin/ArtLayout.cs" />
+        <Compile Include="../JobGaugeEvolved/Rendering/Outline.cs" Link="Plugin/Outline.cs" />
+        <Compile Include="../JobGaugeEvolved/Rendering/GlowPulse.cs" Link="Plugin/GlowPulse.cs" />
         <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperLayers.cs" Link="Plugin/ViperLayers.cs" />
         <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperIds.cs" Link="Plugin/ViperIds.cs" />
         <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperSnapshot.cs" Link="Plugin/ViperSnapshot.cs" />
