@@ -10,6 +10,8 @@ internal static class ViperPreview
         ("No buffs: nothing lit", Make(0, ViperVenom.None)),
         ("Honed Steel: Steel Fangs", Make(0, ViperVenom.Hindstung, honedSteel: true)),
         ("Honed Reavers: Reaving Fangs", Make(0, ViperVenom.Flanksbane, honedReavers: true)),
+        ("Opener step 2, no venom yet: both", Make(ViperIds.SteelFangs, ViperVenom.None, honedReavers: true)),
+        ("Opener flank finisher, no venom yet: centre + both", Make(ViperIds.HuntersSting, ViperVenom.None, honedReavers: true)),
         ("Step 2, flank venom: Hunter's Sting", Make(ViperIds.SteelFangs, ViperVenom.Flankstung, honedReavers: true)),
         ("Step 2, rear venom: Swiftskin's Sting", Make(ViperIds.ReavingFangs, ViperVenom.Hindstung, honedSteel: true)),
         ("Flank, Flankstung: centre + Flanksting Strike", Make(ViperIds.HuntersSting, ViperVenom.Flankstung, honedReavers: true)),

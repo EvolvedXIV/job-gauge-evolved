@@ -24,6 +24,7 @@
         <Compile Include="../JobGaugeEvolved/Rendering/Outline.cs" Link="Plugin/Outline.cs" />
         <Compile Include="../JobGaugeEvolved/Rendering/GlowPulse.cs" Link="Plugin/GlowPulse.cs" />
         <Compile Include="../JobGaugeEvolved/Rendering/RectCut.cs" Link="Plugin/RectCut.cs" />
+        <Compile Include="../JobGaugeEvolved/Native/CoverRules.cs" Link="Plugin/CoverRules.cs" />
         <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperLayers.cs" Link="Plugin/ViperLayers.cs" />
         <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperIds.cs" Link="Plugin/ViperIds.cs" />
         <Compile Include="../JobGaugeEvolved/Gauges/Viper/ViperSnapshot.cs" Link="Plugin/ViperSnapshot.cs" />

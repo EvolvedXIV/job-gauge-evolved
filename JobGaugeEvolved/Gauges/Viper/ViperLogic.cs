@@ -48,12 +48,13 @@ internal readonly record struct ViperHighlights(ViperStep Step, BladeGlow Left, 
 /// <remarks>
 /// <list type="bullet">
 /// <item>Step 1: Honed Steel recommends Steel Fangs (left), Honed Reavers Reaving Fangs (right); neither, nothing.</item>
-/// <item>Step 2: a flank venom recommends Hunter's Sting (left), a rear venom Swiftskin's Sting (right); none, nothing.</item>
-/// <item>Flank finisher: the centre in the flank colour, plus the venom's button.</item>
-/// <item>Rear finisher: the centre in the rear colour, plus the venom's button.</item>
+/// <item>Step 2: a flank venom recommends Hunter's Sting (left), a rear venom Swiftskin's Sting (right); no venom, both.</item>
+/// <item>Flank finisher: the centre, plus the button of the finisher the venom empowers; no flank venom, both.</item>
+/// <item>Rear finisher: the centre, plus the button of the finisher the venom empowers; no rear venom, both.</item>
 /// </list>
-/// Without a buff nothing is recommended (like the game's hotbar), so the blades go dark as soon as the buffs run out.
-/// The positional at the finisher comes from the combo itself and shows either way.
+/// Like the game's Vipersight: at step 1 a Honed buff picks the button, and without one the blades go dark (so they
+/// do as soon as the buffs run out). Once the combo runs, both of its next buttons are recommended unless a venom picks
+/// one: that is the opener's first combo, before any venom. The positional at the finisher comes from the combo itself.
 /// The area-of-effect combo never changes this: it leaves the single-target combo at step 1.
 /// </remarks>
 internal static class ViperLogic
@@ -85,8 +86,13 @@ internal static class ViperLogic
 
             case ViperStep.Second: {
                 // Swiftskin's Sting only exists from level 20.
-                var left = s.Venom is ViperVenom.Flankstung or ViperVenom.Flanksbane;
-                var right = s.Venom is ViperVenom.Hindstung or ViperVenom.Hindsbane && s.Level >= ViperIds.SwiftskinsStingLevel;
+                var hasSwiftskin = s.Level >= ViperIds.SwiftskinsStingLevel;
+                var flank = s.Venom is ViperVenom.Flankstung or ViperVenom.Flanksbane;
+                var rear = s.Venom is ViperVenom.Hindstung or ViperVenom.Hindsbane && hasSwiftskin;
+
+                // No venom yet (the opener's first combo): either button.
+                var left = flank || !rear;
+                var right = rear || !flank && hasSwiftskin;
                 return new ViperHighlights(step, Lit(left), Lit(right), false);
             }
 
@@ -95,8 +101,9 @@ internal static class ViperLogic
                 {
                     ViperVenom.Flankstung => new ViperHighlights(step, BladeGlow.Flank, BladeGlow.None, true),
                     ViperVenom.Flanksbane => new ViperHighlights(step, BladeGlow.None, BladeGlow.Flank, true),
-                    // No flank venom (e.g. the first combo): only the positional.
-                    _ => new ViperHighlights(step, BladeGlow.None, BladeGlow.None, true),
+
+                    // No flank venom (the opener's first combo): either finisher.
+                    _ => new ViperHighlights(step, BladeGlow.Flank, BladeGlow.Flank, true),
                 };
 
             case ViperStep.RearFinisher:
@@ -104,7 +111,7 @@ internal static class ViperLogic
                 {
                     ViperVenom.Hindstung => new ViperHighlights(step, BladeGlow.Rear, BladeGlow.None, true),
                     ViperVenom.Hindsbane => new ViperHighlights(step, BladeGlow.None, BladeGlow.Rear, true),
-                    _ => new ViperHighlights(step, BladeGlow.None, BladeGlow.None, true),
+                    _ => new ViperHighlights(step, BladeGlow.Rear, BladeGlow.Rear, true),
                 };
 
             default:
