@@ -15,12 +15,16 @@ internal sealed class Shape
         Outlines = outlines;
         Bounds = bounds;
         Directions = Array.ConvertAll(outlines, o => Outline.OffsetDirections(o));
+        Insets = Array.ConvertAll(outlines, o => Outline.AreaOverPerimeter(o));
         Triangles = Array.ConvertAll(outlines, o => Outline.Triangulate(o));
     }
 
     public Vector2[][] Outlines { get; }
     public Vector2[][] Directions { get; }
     public int[][] Triangles { get; }
+
+    /// <summary>Per outline: how far inside it a glow can start (about half its thickness).</summary>
+    public float[] Insets { get; }
     public ArtBox Bounds { get; }
 
     public int PointCount

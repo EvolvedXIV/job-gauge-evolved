@@ -10,8 +10,10 @@ public sealed class ViperConfig : GaugeConfig
     public ColorSpec FlankColor = DefaultFlank();
     public ColorSpec RearColor = DefaultRear();
 
-    /// <summary>How bright the blade whose finisher is not empowered by your venom is at the flank step.</summary>
-    public float OtherBladeIntensity = 0.4f;
+    // The centre (the orb) at the finishers: its own colours and glow.
+    public ColorSpec FlankCenterColor = DefaultFlankCenter();
+    public ColorSpec RearCenterColor = DefaultRearCenter();
+    public GlowStyle CenterGlow = new();
 
     /// <summary>How strongly a lit blade's colour is added to the steel: 0.5 is like GIMP's Addition at 50%.</summary>
     public float BladeTintStrength = 0.5f;
@@ -33,6 +35,10 @@ public sealed class ViperConfig : GaugeConfig
     public static ColorSpec DefaultFlank() =>
         new(ColorSpec.Hex("#3DDC5A"), ColorSpec.Hex("#FFE15A"), GradientDirection.LeftToRight);
 
+    public static ColorSpec DefaultFlankCenter() => new(ColorSpec.Hex("#3DDC5A"), ColorSpec.Hex("#FFE15A"));
+
+    public static ColorSpec DefaultRearCenter() => new(ColorSpec.Hex("#FF4B3E"), ColorSpec.Hex("#FFC94A"));
+
     public static ColorSpec DefaultRear() => new(ColorSpec.Hex("#FF4B3E"), ColorSpec.Hex("#FFC94A"));
 
     // The game's liquid: a bright cyan surface over a violet-blue body.
@@ -42,6 +48,8 @@ public sealed class ViperConfig : GaugeConfig
 
     public static ColorSpec DefaultCoil() => new(ColorSpec.Hex("#FF2B3D"));
 
+    public override float GlowReach => MathF.Max(base.GlowReach, CenterGlow.Gap + CenterGlow.Width);
+
     public override void Sanitize()
     {
         base.Sanitize();
@@ -50,14 +58,18 @@ public sealed class ViperConfig : GaugeConfig
         RecommendColor ??= DefaultRecommend();
         FlankColor ??= DefaultFlank();
         RearColor ??= DefaultRear();
+        FlankCenterColor ??= DefaultFlankCenter();
+        RearCenterColor ??= DefaultRearCenter();
+        CenterGlow ??= new GlowStyle();
+        CenterGlow.Sanitize();
         LiquidColor ??= DefaultLiquid();
         TributeColor ??= DefaultTribute();
         CoilColor ??= DefaultCoil();
-        foreach (var color in new[] { RecommendColor, FlankColor, RearColor, LiquidColor, TributeColor, CoilColor }) {
+        foreach (var color in new[]
+                 { RecommendColor, FlankColor, RearColor, FlankCenterColor, RearCenterColor, LiquidColor, TributeColor, CoilColor }) {
             color.Sanitize();
         }
 
-        OtherBladeIntensity = float.IsFinite(OtherBladeIntensity) ? Math.Clamp(OtherBladeIntensity, 0f, 1f) : 0.4f;
         BladeTintStrength = float.IsFinite(BladeTintStrength) ? Math.Clamp(BladeTintStrength, 0f, 1f) : 0.5f;
     }
 }

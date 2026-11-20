@@ -38,13 +38,13 @@ public class ViperLogicTests
     }
 
     [Theory]
-    [InlineData(ViperVenom.Flankstung, BladeGlow.Flank, BladeGlow.FlankDim)]
-    [InlineData(ViperVenom.Flanksbane, BladeGlow.FlankDim, BladeGlow.Flank)]
-    [InlineData(ViperVenom.None, BladeGlow.Flank, BladeGlow.Flank)]
-    public void FlankFinisherLightsBothBladesAndEmphasisesTheVenom(ViperVenom venom, BladeGlow left, BladeGlow right)
+    [InlineData(ViperVenom.Flankstung, BladeGlow.Flank, Off)]
+    [InlineData(ViperVenom.Flanksbane, Off, BladeGlow.Flank)]
+    [InlineData(ViperVenom.None, Off, Off)]
+    public void FlankFinisherLightsTheCentreAndTheVenomsBlade(ViperVenom venom, BladeGlow left, BladeGlow right)
     {
         var result = ViperLogic.Evaluate(State(ViperIds.HuntersSting, venom));
-        Assert.Equal(new ViperHighlights(ViperStep.FlankFinisher, left, right, false), result);
+        Assert.Equal(new ViperHighlights(ViperStep.FlankFinisher, left, right, true), result);
     }
 
     [Theory]
@@ -94,8 +94,9 @@ public class ViperLogicTests
         Assert.Equal((Off, Rec), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs, ViperVenom.Hindsbane))));
         Assert.Equal((Off, Off), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs))));
 
-        // The finisher's positional comes from the combo, so it stays.
-        Assert.Equal((BladeGlow.Flank, BladeGlow.Flank), Blades(ViperLogic.Evaluate(State(ViperIds.HuntersSting))));
+        // The finisher's positional comes from the combo, so the centre stays lit; the blades need a venom.
+        var flank = ViperLogic.Evaluate(State(ViperIds.HuntersSting));
+        Assert.Equal((Off, Off, true), (flank.Left, flank.Right, flank.Center));
         Assert.True(ViperLogic.Evaluate(State(ViperIds.SwiftskinsSting)).Center);
 
         static (BladeGlow, BladeGlow) Blades(ViperHighlights h) => (h.Left, h.Right);
@@ -153,8 +154,8 @@ public class ViperLogicTests
             new ViperHighlights(ViperStep.Start, Off, Rec, false),
             new ViperHighlights(ViperStep.Second, Rec, Off, false),
             new ViperHighlights(ViperStep.Second, Off, Rec, false),
-            new ViperHighlights(ViperStep.FlankFinisher, BladeGlow.Flank, BladeGlow.FlankDim, false),
-            new ViperHighlights(ViperStep.FlankFinisher, BladeGlow.FlankDim, BladeGlow.Flank, false),
+            new ViperHighlights(ViperStep.FlankFinisher, BladeGlow.Flank, Off, true),
+            new ViperHighlights(ViperStep.FlankFinisher, Off, BladeGlow.Flank, true),
             new ViperHighlights(ViperStep.RearFinisher, BladeGlow.Rear, Off, true),
             new ViperHighlights(ViperStep.RearFinisher, Off, BladeGlow.Rear, true),
             new ViperHighlights(ViperStep.Start, Rec, Off, false),

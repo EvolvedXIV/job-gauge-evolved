@@ -12,6 +12,12 @@ public sealed class PluginConfiguration : IPluginConfiguration
     // One field per job gauge.
     public ViperConfig Viper = new();
 
+    /// <summary>Game windows (addon names, comma separated) that never cover a gauge, for overlays that are see-through.</summary>
+    public string IgnoredWindows = string.Empty;
+
+    [Newtonsoft.Json.JsonIgnore]
+    public IReadOnlySet<string> IgnoredWindowNames { get; private set; } = new HashSet<string>();
+
     [Newtonsoft.Json.JsonIgnore]
     public IEnumerable<GaugeConfig> AllGauges
     {
@@ -21,6 +27,8 @@ public sealed class PluginConfiguration : IPluginConfiguration
     public void Sanitize()
     {
         Viper ??= new ViperConfig();
+        IgnoredWindows ??= string.Empty;
+        IgnoredWindowNames = NameList.Parse(IgnoredWindows);
         foreach (var gauge in AllGauges) {
             gauge.Sanitize();
         }

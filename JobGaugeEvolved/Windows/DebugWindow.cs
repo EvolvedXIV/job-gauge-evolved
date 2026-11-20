@@ -27,5 +27,14 @@ internal sealed class DebugWindow : Window
         ImGui.TextUnformatted($"{gauge.Name} gauge");
         ImGui.Separator();
         gauge.DrawDebug();
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        var w = gauges.Windows;
+        ImGui.TextUnformatted($"Game windows over the gauge: drawn after {w.ReferenceAddon} " +
+                              $"(layer {w.Reference.Layer}, position {w.Reference.Index})");
+        foreach (var c in w.Covering) {
+            ImGui.TextUnformatted($"  {c.Name}  layer {c.Layer}  ({c.Rect.Min.X:0},{c.Rect.Min.Y:0})–({c.Rect.Max.X:0},{c.Rect.Max.Y:0})");
+        }
     }
 }

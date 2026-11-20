@@ -94,6 +94,23 @@ public class OutlineTests
     }
 
     [Fact]
+    public void AreaOverPerimeterIsHalfTheRadiusOfADisc()
+    {
+        var img = Image(64, 64, (x, y) => (x + 0.5 - 32) * (x + 0.5 - 32) + (y + 0.5 - 32) * (y + 0.5 - 32) <= 20 * 20);
+        var outline = Assert.Single(Trace(img));
+        Assert.InRange(Outline.AreaOverPerimeter(outline), 9.3f, 10.3f);   // the traced edge is a little longer than a true circle
+    }
+
+    [Fact]
+    public void AreaOverPerimeterIsAboutHalfTheThicknessOfAStrip()
+    {
+        var strip = new[] { new Vector2(0, 0), new Vector2(200, 0), new Vector2(200, 6), new Vector2(0, 6) };
+        Assert.InRange(Outline.AreaOverPerimeter(strip), 2.8f, 3f);
+        Assert.InRange(Outline.AreaOverPerimeter(strip.Reverse().ToArray()), 2.8f, 3f);   // winding does not matter
+        Assert.Equal(0f, Outline.AreaOverPerimeter(new[] { Vector2.One, Vector2.One }));
+    }
+
+    [Fact]
     public void AnOffsetSquareGrowsByTheDistance()
     {
         var square = new[] { new Vector2(0, 0), new Vector2(10, 0), new Vector2(10, 10), new Vector2(0, 10) };

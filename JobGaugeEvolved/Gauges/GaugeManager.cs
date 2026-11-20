@@ -28,6 +28,9 @@ internal sealed class GaugeManager : IDisposable
     // Reading the game 20 times a second is plenty; drawing still happens every frame.
     private readonly UpdateThrottle reads = new(TimeSpan.FromMilliseconds(50));
 
+    // Game windows are looked at every frame, so a window dragged over the gauge cuts it smoothly.
+    private readonly WindowOcclusion windows = new();
+
     private IJobGauge? visible;
 
     public GaugeManager(PluginConfiguration config)
@@ -90,8 +93,20 @@ internal sealed class GaugeManager : IDisposable
         }
     }
 
+    /// <summary>The game windows covering the shown gauge (for the debug window).</summary>
+    public WindowOcclusion Windows => windows;
+
     private void OnUpdate(IFramework framework)
     {
+        try {
+            if (visible is { Config.HideBehindWindows: true } shown) {
+                windows.Update(shown.GameAddons[0], config.IgnoredWindowNames);
+            }
+        }
+        catch (Exception e) {
+            Service.Log.Error(e, "Looking at the game's windows failed");
+        }
+
         if (!reads.ShouldRun(clock.Elapsed)) {
             return;
         }
@@ -161,7 +176,7 @@ internal sealed class GaugeManager : IDisposable
         var origin = placement.Centre - gauge.Centre * placement.Scale;    // screen position of unit (0, 0)
 
         // The window also covers the glows, which reach beyond the art; dragging uses the art alone.
-        var reach = gauge.Config.Glow.Gap + gauge.Config.Glow.Width + 2f;
+        var reach = gauge.Config.GlowReach + 2f;
         var art = (Min: origin + bounds.Min * placement.Scale, Size: bounds.Size * placement.Scale);
         bounds = new ArtBox(bounds.X - reach, bounds.Y - reach, bounds.W + 2 * reach, bounds.H + 2 * reach);
         var topLeft = origin + bounds.Min * placement.Scale;
@@ -183,8 +198,15 @@ internal sealed class GaugeManager : IDisposable
         try {
             if (ImGui.Begin($"###JobGaugeEvolved{gauge.Name}", flags)) {
                 var drawList = ImGui.GetWindowDrawList();
-                var canvas = new GaugeCanvas(drawList, gauge.Art, origin, placement.Scale, gauge.Config.Glow.Additive);
-                gauge.Draw(canvas, text, ImGui.GetTime());
+                var canvas = new GaugeCanvas(drawList, gauge.Art, origin, placement.Scale);
+                var time = ImGui.GetTime();
+
+                // Drawn once per piece left uncovered by game windows, clipped to it.
+                foreach (var piece in VisiblePieces(gauge, new ScreenRect(topLeft, topLeft + size), viewport.Size)) {
+                    drawList.PushClipRect(piece.Min, piece.Max, true);
+                    gauge.Draw(canvas, text, time);
+                    drawList.PopClipRect();
+                }
 
                 if (Unlocked) {
                     ImGui.SetCursorScreenPos(art.Min);
@@ -205,6 +227,24 @@ internal sealed class GaugeManager : IDisposable
             ImGui.End();
             ImGui.PopStyleVar(3);
         }
+    }
+
+    /// <summary>The parts of the gauge's window that no game window covers.</summary>
+    private List<ScreenRect> VisiblePieces(IJobGauge gauge, ScreenRect window, Vector2 screen)
+    {
+        if (!gauge.Config.HideBehindWindows || windows.Covering.Count == 0) {
+            return [window];
+        }
+
+        var covers = new List<ScreenRect>();
+        foreach (var w in windows.Covering) {
+            // Something covering nearly the whole screen is a full-screen overlay, not a window.
+            if (w.Rect.Overlaps(window) && w.Rect.Area < screen.X * screen.Y * 0.9f) {
+                covers.Add(w.Rect);
+            }
+        }
+
+        return covers.Count == 0 ? [window] : RectCut.Visible(window, covers);
     }
 
     /// <summary>The game gauge's HUD Layout centre and scale, remembered while the addon is gone.</summary>

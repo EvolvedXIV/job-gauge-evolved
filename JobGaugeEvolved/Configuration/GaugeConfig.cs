@@ -40,8 +40,14 @@ public abstract class GaugeConfig
 
     public bool OnlyInCombat;
 
+    /// <summary>Leave out the parts of the gauge that game windows cover, so it looks behind them like the original.</summary>
+    public bool HideBehindWindows = true;
+
     /// <summary>How highlights glow and pulse.</summary>
     public GlowStyle Glow = new();
+
+    /// <summary>How far beyond the art the gauge's glows can reach, in gauge units.</summary>
+    public virtual float GlowReach => Glow.Gap + Glow.Width;
 
     /// <summary>Clamps values that may have been hand-edited or come from an older version.</summary>
     public virtual void Sanitize()

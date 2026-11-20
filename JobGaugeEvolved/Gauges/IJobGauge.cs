@@ -36,6 +36,9 @@ internal interface IJobGauge : IDisposable
     /// <summary>The game's own HUD addons for this job's gauge (hidden when the option is on).</summary>
     IReadOnlyList<string> GameAddons { get; }
 
+    /// <summary>The title and help text of the settings for <see cref="GaugeConfig.Glow"/>, saying what it glows around.</summary>
+    (string Title, string Help) GlowSettingsText { get; }
+
     /// <summary>What players call each of <see cref="GameAddons"/>, in the same order.</summary>
     IReadOnlyList<string> GameGaugeNames { get; }
 

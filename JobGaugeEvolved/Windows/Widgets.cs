@@ -76,6 +76,41 @@ internal static class Widgets
         return changed;
     }
 
+    /// <summary>A glow's settings under their own header: pulse, timing, size, brightness, blending.</summary>
+    public static bool GlowSettings(string title, GlowStyle glow, string help)
+    {
+        using var id = ImRaii.PushId(title);
+        var changed = false;
+        SectionHeader(title);
+        ImGui.TextDisabled(help);
+
+        changed |= ImGui.Checkbox("Pulse", ref glow.Pulse);
+        HelpMarker("Each pulse comes out from behind the shape, drifts outward until there is a gap, fades and starts " +
+                   "again, like energy coming off it. Off: the glow stays at the edge.");
+
+        using (ImRaii.Disabled(!glow.Pulse)) {
+            ImGui.SetNextItemWidth(ItemWidth);
+            changed |= ImGui.SliderFloat("Seconds per pulse", ref glow.Period, GlowStyle.MinPeriod, GlowStyle.MaxPeriod, "%.1f s");
+            ImGui.SetNextItemWidth(ItemWidth);
+            changed |= ImGui.SliderFloat("Gap at the end of a pulse", ref glow.Gap, 0f, GlowStyle.MaxGap, "%.0f px");
+        }
+
+        ImGui.SetNextItemWidth(ItemWidth);
+        changed |= ImGui.SliderFloat("Glow width", ref glow.Width, GlowStyle.MinWidth, GlowStyle.MaxWidth, "%.0f px");
+
+        var brightness = glow.Intensity * 100f;
+        ImGui.SetNextItemWidth(ItemWidth);
+        if (ImGui.SliderFloat("Glow brightness", ref brightness, 0f, GlowStyle.MaxIntensity * 100f, "%.0f%%")) {
+            glow.Intensity = brightness / 100f;
+            changed = true;
+        }
+
+        changed |= ImGui.Checkbox("Additive blending", ref glow.Additive);
+        HelpMarker("Added to what is behind it, like GIMP's Addition mode. Turn this off if it looks wrong; it is then " +
+                   "painted over instead.");
+        return changed;
+    }
+
     public static bool EnumCombo<T>(string label, ref T value, (T Value, string Name)[] options) where T : struct, Enum
     {
         var preview = string.Empty;
