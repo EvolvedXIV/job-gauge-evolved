@@ -319,6 +319,21 @@ internal sealed unsafe class ViperGauge : IJobGauge
             var d = sight->DataCurrent;
             ImGui.TextUnformatted($"Vipersight: left glow {d.LeftGlow}, right glow {d.RightGlow}, combo step {d.ComboStep}, " +
                                   $"coils {d.CoilStacks}/{d.CoilMax}");
+
+            // Which blades each side lights (a non-zero game value counted as lit: unverified).
+            var game = (Lit(d.LeftGlow), Lit(d.RightGlow));
+            var plugin = (highlights.Left != BladeGlow.None, highlights.Right != BladeGlow.None);
+            if (game == plugin) {
+                ImGui.TextUnformatted("Blades lit: plugin agrees with the game");
+            }
+            else {
+                ImGui.TextColored(new Vector4(1f, 0.55f, 0.35f, 1f),
+                    $"Blades lit: plugin {Show(plugin)}, game {Show(game)}. Please report this state.");
+            }
+
+            static bool Lit<T>(T value) => !EqualityComparer<T>.Default.Equals(value, default!);
+            static string Show((bool Left, bool Right) b) =>
+                b switch { (true, true) => "both", (true, false) => "left", (false, true) => "right", _ => "none" };
         }
         else {
             ImGui.TextDisabled("Vipersight addon not loaded.");

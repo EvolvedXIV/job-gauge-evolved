@@ -24,7 +24,7 @@ public class ViperLogicTests
     }
 
     [Theory]
-    [InlineData(ViperVenom.None, Off, Off)]
+    [InlineData(ViperVenom.None, Rec, Rec)]       // no venom yet (the opener): either button
     [InlineData(ViperVenom.Flankstung, Rec, Off)]
     [InlineData(ViperVenom.Flanksbane, Rec, Off)]
     [InlineData(ViperVenom.Hindstung, Off, Rec)]
@@ -40,7 +40,9 @@ public class ViperLogicTests
     [Theory]
     [InlineData(ViperVenom.Flankstung, BladeGlow.Flank, Off)]
     [InlineData(ViperVenom.Flanksbane, Off, BladeGlow.Flank)]
-    [InlineData(ViperVenom.None, Off, Off)]
+    [InlineData(ViperVenom.None, BladeGlow.Flank, BladeGlow.Flank)]        // no venom yet (the opener): either finisher
+    [InlineData(ViperVenom.Hindstung, BladeGlow.Flank, BladeGlow.Flank)]   // a rear venom empowers neither
+    [InlineData(ViperVenom.Hindsbane, BladeGlow.Flank, BladeGlow.Flank)]
     public void FlankFinisherLightsTheCentreAndTheVenomsBlade(ViperVenom venom, BladeGlow left, BladeGlow right)
     {
         var result = ViperLogic.Evaluate(State(ViperIds.HuntersSting, venom));
@@ -50,7 +52,9 @@ public class ViperLogicTests
     [Theory]
     [InlineData(ViperVenom.Hindstung, BladeGlow.Rear, Off)]
     [InlineData(ViperVenom.Hindsbane, Off, BladeGlow.Rear)]
-    [InlineData(ViperVenom.None, Off, Off)]
+    [InlineData(ViperVenom.None, BladeGlow.Rear, BladeGlow.Rear)]
+    [InlineData(ViperVenom.Flankstung, BladeGlow.Rear, BladeGlow.Rear)]
+    [InlineData(ViperVenom.Flanksbane, BladeGlow.Rear, BladeGlow.Rear)]
     public void RearFinisherLightsTheCentreAndTheVenomsBlade(ViperVenom venom, BladeGlow left, BladeGlow right)
     {
         var result = ViperLogic.Evaluate(State(ViperIds.SwiftskinsSting, venom));
@@ -88,16 +92,15 @@ public class ViperLogicTests
     [Fact]
     public void LosingTheBuffsTurnsTheBladesOff()
     {
-        // Same combo state, buffs gone: nothing is recommended any more, with no cast in between.
+        // At step 1, buffs gone: nothing is recommended any more, with no cast in between.
         Assert.Equal((Rec, Off), Blades(ViperLogic.Evaluate(State(steel: true))));
         Assert.Equal((Off, Off), Blades(ViperLogic.Evaluate(State())));
-        Assert.Equal((Off, Rec), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs, ViperVenom.Hindsbane))));
-        Assert.Equal((Off, Off), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs))));
 
-        // The finisher's positional comes from the combo, so the centre stays lit; the blades need a venom.
+        // Mid-combo, a venom gone: both of the next buttons are recommended again, as in the opener.
+        Assert.Equal((Off, Rec), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs, ViperVenom.Hindsbane))));
+        Assert.Equal((Rec, Rec), Blades(ViperLogic.Evaluate(State(ViperIds.ReavingFangs))));
         var flank = ViperLogic.Evaluate(State(ViperIds.HuntersSting));
-        Assert.Equal((Off, Off, true), (flank.Left, flank.Right, flank.Center));
-        Assert.True(ViperLogic.Evaluate(State(ViperIds.SwiftskinsSting)).Center);
+        Assert.Equal((BladeGlow.Flank, BladeGlow.Flank, true), (flank.Left, flank.Right, flank.Center));
 
         static (BladeGlow, BladeGlow) Blades(ViperHighlights h) => (h.Left, h.Right);
     }
@@ -109,12 +112,35 @@ public class ViperLogicTests
         Assert.Equal(new ViperHighlights(ViperStep.Start, Off, Off, false), ViperLogic.Evaluate(State(reavers: true, level: 9)));
 
         // Level 19: no Swiftskin's Sting yet, even with a rear venom (which can't exist then anyway).
+        // Without a venom it can use, step 2 recommends Hunter's Sting alone.
         Assert.Equal(
-            new ViperHighlights(ViperStep.Second, Off, Off, false),
+            new ViperHighlights(ViperStep.Second, Rec, Off, false),
             ViperLogic.Evaluate(State(ViperIds.SteelFangs, ViperVenom.Hindstung, level: 19)));
+        Assert.Equal(
+            new ViperHighlights(ViperStep.Second, Rec, Off, false),
+            ViperLogic.Evaluate(State(ViperIds.SteelFangs, level: 19)));
 
         // Level 4: Steel Fangs has no follow-up yet.
         Assert.Equal(ViperStep.Start, ViperLogic.StepOf(State(ViperIds.SteelFangs, level: 4)));
+    }
+
+    [Fact]
+    public void TheOpenersFirstComboLightsBothBladesLikeTheGame()
+    {
+        // Steel Fangs (grants Honed Reavers) -> Hunter's Sting (grants Hunter's Instinct) -> a flank finisher, no venom yet.
+        Assert.Equal(new ViperHighlights(ViperStep.Second, Rec, Rec, false),
+            ViperLogic.Evaluate(State(ViperIds.SteelFangs, reavers: true)));
+        Assert.Equal(new ViperHighlights(ViperStep.FlankFinisher, BladeGlow.Flank, BladeGlow.Flank, true),
+            ViperLogic.Evaluate(State(ViperIds.HuntersSting, reavers: true)));
+
+        // Reaving Fangs (grants Honed Steel) -> Swiftskin's Sting (grants Swiftscaled) -> a rear finisher, no venom yet.
+        Assert.Equal(new ViperHighlights(ViperStep.Second, Rec, Rec, false),
+            ViperLogic.Evaluate(State(ViperIds.ReavingFangs, steel: true)));
+        Assert.Equal(new ViperHighlights(ViperStep.RearFinisher, BladeGlow.Rear, BladeGlow.Rear, true),
+            ViperLogic.Evaluate(State(ViperIds.SwiftskinsSting, steel: true)));
+
+        // Before the first weaponskill there is no buff: nothing lit.
+        Assert.Equal(ViperHighlights.None, ViperLogic.Evaluate(State()));
     }
 
     [Fact]
@@ -152,6 +178,8 @@ public class ViperLogicTests
             new ViperHighlights(ViperStep.Start, Off, Off, false),
             new ViperHighlights(ViperStep.Start, Rec, Off, false),
             new ViperHighlights(ViperStep.Start, Off, Rec, false),
+            new ViperHighlights(ViperStep.Second, Rec, Rec, false),
+            new ViperHighlights(ViperStep.FlankFinisher, BladeGlow.Flank, BladeGlow.Flank, true),
             new ViperHighlights(ViperStep.Second, Rec, Off, false),
             new ViperHighlights(ViperStep.Second, Off, Rec, false),
             new ViperHighlights(ViperStep.FlankFinisher, BladeGlow.Flank, Off, true),

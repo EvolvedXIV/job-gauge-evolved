@@ -20,8 +20,10 @@ each exists. Glows and highlight colours are not art layers: `GaugeCanvas.Glow`/
 outline (traced from its alpha by `ShapeLibrary`), additively via `AdditiveBlend` when the glow style asks. Glows are
 drawn before the art: each pulse starts inside the outline (`Shape.Insets`), hidden by the opaque art.
 
-The overlay is drawn above the game's UI; `Native/WindowOcclusion` finds the game windows above the job's own gauge
-every frame, and `GaugeManager` draws the gauge once per uncovered piece (`Rendering/RectCut`), clipped to it.
+The overlay is drawn above the game's UI; every frame `Native/WindowOcclusion` reads the game's addons and
+`Native/CoverRules` (tested) picks those that cover the gauge: any visible window with a frame, plus frameless units
+in a depth layer above the job's own gauge. `GaugeManager` then draws the gauge once per uncovered piece
+(`Rendering/RectCut`), clipped to it. `/jge debug` lists every framed window and the rules' verdict on it.
 
 A new job gauge implements `Gauges/IJobGauge.cs`, gets a config field in `PluginConfiguration` and is added to the
 list in `GaugeManager`.

@@ -17,12 +17,13 @@ the Steel Fangs button, the right blade for the Reaving Fangs button.
 | Combo step | What lights up |
 |---|---|
 | 1. Steel Fangs or Reaving Fangs | The blade of the button your Honed buff empowers: Honed Steel → left, Honed Reavers → right. Nothing without a Honed buff. |
-| 2. Hunter's Sting or Swiftskin's Sting | The blade that leads to the finisher your venom empowers: a flank venom → left (Hunter's Sting), a rear venom → right (Swiftskin's Sting). Nothing without a venom. |
-| 3. Flank finisher (after Hunter's Sting) | A glow around the orb in the flank centre colour (green → yellow), plus the blade of the finisher your venom empowers, in the flank blade colour: Flankstung → left (Flanksting Strike), Flanksbane → right (Flanksbane Fang). Only the orb without a venom. |
-| 3. Rear finisher (after Swiftskin's Sting) | A glow around the orb in the rear centre colour (red → yellow), plus the blade of the empowered finisher, in the rear blade colour: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). Only the orb without a venom. |
+| 2. Hunter's Sting or Swiftskin's Sting | The blade that leads to the finisher your venom empowers: a flank venom → left (Hunter's Sting), a rear venom → right (Swiftskin's Sting). Both blades without a venom (the opener's first combo). |
+| 3. Flank finisher (after Hunter's Sting) | A glow around the orb in the flank centre colour (green → yellow), plus the blade of the finisher your venom empowers, in the flank blade colour: Flankstung → left (Flanksting Strike), Flanksbane → right (Flanksbane Fang). The orb and both blades without a flank venom (the opener's first combo). |
+| 3. Rear finisher (after Swiftskin's Sting) | A glow around the orb in the rear centre colour (red → yellow), plus the blade of the empowered finisher, in the rear blade colour: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). The orb and both blades without a rear venom. |
 
-The blades follow your buffs as they come and go: when they run out, the blades go dark without you casting
-anything. The game is read 20 times a second.
+The blades follow your buffs as they come and go, like the game's Vipersight: when they run out, the blades go dark
+without you casting anything. The game is read 20 times a second. `/jge debug` says whether the plugin and the
+game's own gauge agree on which blades are lit.
 
 A lit blade gets its colour added to the steel (like GIMP's Addition mode, 50% by default), so the texture shows
 through, and glows. Glows sit around the shape, never over it, and pulse: each pulse comes out from behind the

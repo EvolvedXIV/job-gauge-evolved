@@ -33,6 +33,9 @@ internal sealed class GaugeManager : IDisposable
 
     private IJobGauge? visible;
 
+    // The screen size, from the last frame drawn (window rectangles are judged against it).
+    private Vector2 screen;
+
     public GaugeManager(PluginConfiguration config)
     {
         this.config = config;
@@ -96,11 +99,14 @@ internal sealed class GaugeManager : IDisposable
     /// <summary>The game windows covering the shown gauge (for the debug window).</summary>
     public WindowOcclusion Windows => windows;
 
+    /// <summary>The shown gauge's window on screen, glows included, as of the last frame (for the debug window).</summary>
+    public ScreenRect? LastDrawn { get; private set; }
+
     private void OnUpdate(IFramework framework)
     {
         try {
             if (visible is { Config.HideBehindWindows: true } shown) {
-                windows.Update(shown.GameAddons[0], config.IgnoredWindowNames);
+                windows.Update(shown.GameAddons, config.IgnoredWindowNames, screen);
             }
         }
         catch (Exception e) {
@@ -152,7 +158,9 @@ internal sealed class GaugeManager : IDisposable
 
     private void OnDraw()
     {
+        screen = ImGuiHelpers.MainViewport.Size;
         if (visible is not { } gauge) {
+            LastDrawn = null;
             return;
         }
 
@@ -202,7 +210,9 @@ internal sealed class GaugeManager : IDisposable
                 var time = ImGui.GetTime();
 
                 // Drawn once per piece left uncovered by game windows, clipped to it.
-                foreach (var piece in VisiblePieces(gauge, new ScreenRect(topLeft, topLeft + size), viewport.Size)) {
+                var drawn = new ScreenRect(topLeft, topLeft + size);
+                LastDrawn = drawn;
+                foreach (var piece in VisiblePieces(gauge, drawn)) {
                     drawList.PushClipRect(piece.Min, piece.Max, true);
                     gauge.Draw(canvas, text, time);
                     drawList.PopClipRect();
@@ -230,7 +240,7 @@ internal sealed class GaugeManager : IDisposable
     }
 
     /// <summary>The parts of the gauge's window that no game window covers.</summary>
-    private List<ScreenRect> VisiblePieces(IJobGauge gauge, ScreenRect window, Vector2 screen)
+    private List<ScreenRect> VisiblePieces(IJobGauge gauge, ScreenRect window)
     {
         if (!gauge.Config.HideBehindWindows || windows.Covering.Count == 0) {
             return [window];
@@ -238,8 +248,7 @@ internal sealed class GaugeManager : IDisposable
 
         var covers = new List<ScreenRect>();
         foreach (var w in windows.Covering) {
-            // Something covering nearly the whole screen is a full-screen overlay, not a window.
-            if (w.Rect.Overlaps(window) && w.Rect.Area < screen.X * screen.Y * 0.9f) {
+            if (w.Rect.Overlaps(window)) {
                 covers.Add(w.Rect);
             }
         }
