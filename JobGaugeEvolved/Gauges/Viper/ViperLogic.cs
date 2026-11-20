@@ -29,14 +29,14 @@ public enum BladeGlow
     /// <summary>Flank finisher, and this button's finisher is empowered by your venom.</summary>
     Flank,
 
-    /// <summary>Flank finisher, but this button's finisher is not the empowered one.</summary>
-    FlankDim,
-
     /// <summary>Rear finisher, and this button's finisher is empowered by your venom.</summary>
     Rear,
 }
 
-/// <summary>What the Viper gauge lights up. Left is the Steel Fangs button, right the Reaving Fangs button.</summary>
+/// <summary>
+/// What the Viper gauge lights up. Left is the Steel Fangs button, right the Reaving Fangs button; <c>Center</c> is the
+/// orb, lit at a finisher (the step says flank or rear).
+/// </summary>
 internal readonly record struct ViperHighlights(ViperStep Step, BladeGlow Left, BladeGlow Right, bool Center)
 {
     public static readonly ViperHighlights None = new(ViperStep.Start, BladeGlow.None, BladeGlow.None, false);
@@ -49,7 +49,7 @@ internal readonly record struct ViperHighlights(ViperStep Step, BladeGlow Left, 
 /// <list type="bullet">
 /// <item>Step 1: Honed Steel recommends Steel Fangs (left), Honed Reavers Reaving Fangs (right); neither, nothing.</item>
 /// <item>Step 2: a flank venom recommends Hunter's Sting (left), a rear venom Swiftskin's Sting (right); none, nothing.</item>
-/// <item>Flank finisher: both blades in the flank colour; the venom's button full strength, the other dimmed.</item>
+/// <item>Flank finisher: the centre in the flank colour, plus the venom's button.</item>
 /// <item>Rear finisher: the centre in the rear colour, plus the venom's button.</item>
 /// </list>
 /// Without a buff nothing is recommended (like the game's hotbar), so the blades go dark as soon as the buffs run out.
@@ -93,10 +93,10 @@ internal static class ViperLogic
             case ViperStep.FlankFinisher:
                 return s.Venom switch
                 {
-                    ViperVenom.Flankstung => new ViperHighlights(step, BladeGlow.Flank, BladeGlow.FlankDim, false),
-                    ViperVenom.Flanksbane => new ViperHighlights(step, BladeGlow.FlankDim, BladeGlow.Flank, false),
-                    // No flank venom (e.g. the first combo): both finishers are equal.
-                    _ => new ViperHighlights(step, BladeGlow.Flank, BladeGlow.Flank, false),
+                    ViperVenom.Flankstung => new ViperHighlights(step, BladeGlow.Flank, BladeGlow.None, true),
+                    ViperVenom.Flanksbane => new ViperHighlights(step, BladeGlow.None, BladeGlow.Flank, true),
+                    // No flank venom (e.g. the first combo): only the positional.
+                    _ => new ViperHighlights(step, BladeGlow.None, BladeGlow.None, true),
                 };
 
             case ViperStep.RearFinisher:

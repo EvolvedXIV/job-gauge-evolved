@@ -169,6 +169,20 @@ internal static class Outline
         return sum / 2f;
     }
 
+    /// <summary>
+    /// Area divided by perimeter: about half the thickness of a long strip, half the radius of a disc. How far inside
+    /// the outline a glow can start without reaching the far side.
+    /// </summary>
+    public static float AreaOverPerimeter(IReadOnlyList<Vector2> points)
+    {
+        var perimeter = 0f;
+        for (var i = 0; i < points.Count; i++) {
+            perimeter += Vector2.Distance(points[i], points[(i + 1) % points.Count]);
+        }
+
+        return perimeter > 0f ? MathF.Abs(SignedArea(points)) / perimeter : 0f;
+    }
+
     public static Vector2[] EnsurePositive(IReadOnlyList<Vector2> points)
     {
         var copy = new Vector2[points.Count];

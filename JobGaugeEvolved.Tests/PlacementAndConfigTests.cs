@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Numerics;
 using JobGaugeEvolved.Configuration;
 using JobGaugeEvolved.Gauges;
@@ -65,14 +66,12 @@ public class PlacementAndConfigTests
         {
             Position = new Vector2(float.NaN, 1),
             HudAnchor = -3,
-            OtherBladeIntensity = 4f,
             FlankColor = null!,
             PositionMode = (PositionMode)99,
         };
         config.Sanitize();
         Assert.Null(config.Position);
         Assert.Equal(0, config.HudAnchor);
-        Assert.Equal(1f, config.OtherBladeIntensity);
         Assert.Equal(ViperConfig.DefaultFlank().A, config.FlankColor.A);
         Assert.Equal(PositionMode.Free, config.PositionMode);
     }
@@ -95,6 +94,28 @@ public class PlacementAndConfigTests
         config.Glow = null!;
         config.Sanitize();
         Assert.NotNull(config.Glow);
+    }
+
+    [Fact]
+    public void TheCentreHasItsOwnColoursAndGlow()
+    {
+        var config = new ViperConfig { FlankCenterColor = null!, CenterGlow = new GlowStyle { Period = 99 } };
+        config.Sanitize();
+        Assert.Equal(ViperConfig.DefaultFlankCenter().A, config.FlankCenterColor.A);
+        Assert.Equal(GlowStyle.MaxPeriod, config.CenterGlow.Period);
+        Assert.NotSame(config.Glow, config.CenterGlow);
+
+        config.CenterGlow.Width = 30;
+        Assert.NotEqual(30, config.Glow.Width);
+        Assert.True(config.RearCenterColor.A.X > config.RearCenterColor.A.Y, "rear centre starts red");
+    }
+
+    [Fact]
+    public void IgnoredWindowsAreParsed()
+    {
+        var names = NameList.Parse(" _ScreenText, Tooltip ,,ScreenFrame");
+        Assert.Equal(new[] { "ScreenFrame", "Tooltip", "_ScreenText" }, names.Order(System.StringComparer.Ordinal).ToArray());
+        Assert.Empty(NameList.Parse(null));
     }
 
     [Fact]

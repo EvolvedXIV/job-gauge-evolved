@@ -54,6 +54,9 @@ internal sealed unsafe class ViperGauge : IJobGauge
     public IReadOnlyList<string> GameAddons { get; } = [VipersightAddon, SerpentOfferingsAddon];
     public IReadOnlyList<string> GameGaugeNames { get; } = ["Vipersight", "Serpent Offerings Gauge"];
 
+    public (string Title, string Help) GlowSettingsText { get; } =
+        ("Blade and stone glow", "The glow around lit blades, Anguine Tribute coins and Rattling Coils.");
+
     public IReadOnlyList<string> PreviewStates { get; } = ViperPreview.States.Select(s => s.Name).ToArray();
 
     public bool HasData { get; private set; }
@@ -139,18 +142,14 @@ internal sealed unsafe class ViperGauge : IJobGauge
             _ => config.FlankColor,
         };
 
-        float Strength(BladeGlow g) => g switch
-        {
-            BladeGlow.None => 0f,
-            BladeGlow.FlankDim => config.OtherBladeIntensity,
-            _ => 1f,
-        };
+        float Strength(BladeGlow g) => g == BladeGlow.None ? 0f : 1f;
 
         var blades = new[] { (Glow: h.Left, Mirror: false), (Glow: h.Right, Mirror: true) };
 
-        // 1. Glows behind everything: around the orb's ring for rear, around each lit blade.
+        // 1. Glows behind everything: around the orb at a finisher (its own colours and glow), around each lit blade.
         if (h.Center) {
-            canvas.Glow(ViperLayers.VesselRing, config.RearColor, glow, time);
+            var centre = h.Step == ViperStep.FlankFinisher ? config.FlankCenterColor : config.RearCenterColor;
+            canvas.Glow(ViperLayers.VesselRing, centre, config.CenterGlow, time);
         }
 
         foreach (var (g, mirror) in blades) {
@@ -163,7 +162,7 @@ internal sealed unsafe class ViperGauge : IJobGauge
         foreach (var (g, mirror) in blades) {
             canvas.Layer(ViperLayers.Blade, mirror: mirror);
             if (Strength(g) > 0f) {
-                canvas.Tint(ViperLayers.Blade, GlowColor(g), config.BladeTintStrength * Strength(g), mirror);
+                canvas.Tint(ViperLayers.Blade, GlowColor(g), config.BladeTintStrength * Strength(g), glow.Additive, mirror);
             }
         }
 
@@ -252,10 +251,17 @@ internal sealed unsafe class ViperGauge : IJobGauge
         Widgets.SectionHeader("Combo highlights");
         changed |= Widgets.ColorSetting("Recommended button", config.RecommendColor, ViperConfig.DefaultRecommend,
             "Steps 1 and 2: the blade of the button to press next. Left is Steel Fangs, right is Reaving Fangs.");
-        changed |= Widgets.ColorSetting("Flank finisher", config.FlankColor, ViperConfig.DefaultFlank,
-            "After Hunter's Sting: both blades light up, because Flanksting Strike and Flanksbane Fang are flank attacks.");
-        changed |= Widgets.ColorSetting("Rear finisher", config.RearColor, ViperConfig.DefaultRear,
-            "After Swiftskin's Sting: a glow around the Serpent Offerings orb, because Hindsting Strike and Hindsbane Fang are rear attacks.");
+        changed |= Widgets.ColorSetting("Flank: blade", config.FlankColor, ViperConfig.DefaultFlank,
+            "After Hunter's Sting: the blade of the flank finisher your venom empowers (Flanksting Strike left, " +
+            "Flanksbane Fang right).");
+        changed |= Widgets.ColorSetting("Flank: centre", config.FlankCenterColor, ViperConfig.DefaultFlankCenter,
+            "After Hunter's Sting: the glow around the orb, because the finisher is a flank attack.");
+        changed |= Widgets.ColorSetting("Rear: blade", config.RearColor, ViperConfig.DefaultRear,
+            "After Swiftskin's Sting: the blade of the rear finisher your venom empowers (Hindsting Strike left, " +
+            "Hindsbane Fang right).");
+        changed |= Widgets.ColorSetting("Rear: centre", config.RearCenterColor, ViperConfig.DefaultRearCenter,
+            "After Swiftskin's Sting: the glow around the orb, because the finisher is a rear attack.");
+
         var tint = config.BladeTintStrength * 100f;
         ImGui.SetNextItemWidth(Widgets.ItemWidth);
         if (ImGui.SliderFloat("Blade colour strength", ref tint, 0f, 100f, "%.0f%%")) {
@@ -264,16 +270,10 @@ internal sealed unsafe class ViperGauge : IJobGauge
         }
 
         Widgets.HelpMarker("A lit blade's colour is added to the steel, like GIMP's Addition mode at this opacity, so the " +
-                           "texture shows through. The glow around the blade is set under Highlights.");
+                           "texture shows through. The glow around the blade is set under \"Blade and stone glow\".");
 
-        var intensity = config.OtherBladeIntensity * 100f;
-        ImGui.SetNextItemWidth(Widgets.ItemWidth);
-        if (ImGui.SliderFloat("Other blade at the flank step", ref intensity, 0f, 100f, "%.0f%%")) {
-            config.OtherBladeIntensity = intensity / 100f;
-            changed = true;
-        }
-
-        Widgets.HelpMarker("At the flank finisher, the blade whose finisher your venom does not empower is lit this much.");
+        changed |= Widgets.GlowSettings("Centre glow", config.CenterGlow,
+            "The glow around the orb at the flank and rear finishers, set apart from the blades' glow.");
 
         Widgets.SectionHeader("Serpent Offerings");
         changed |= Widgets.ColorSetting("Liquid", config.LiquidColor, ViperConfig.DefaultLiquid);

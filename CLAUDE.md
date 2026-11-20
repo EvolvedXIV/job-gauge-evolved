@@ -17,7 +17,11 @@ off and update `repo.json` through a PR on that repository (see the skill's `ref
 Gauge art: edit the SVG in `art/`, then rebuild with `scripts/build_art.py` (see README) and commit the PNGs and
 `layout.json`. Layer and anchor names used in code are listed in `Gauges/<Job>/<Job>Layers.cs`; the tests check that
 each exists. Glows and highlight colours are not art layers: `GaugeCanvas.Glow`/`Tint` draw them from a layer's
-outline (traced from its alpha by `ShapeLibrary`), additively via `AdditiveBlend`.
+outline (traced from its alpha by `ShapeLibrary`), additively via `AdditiveBlend` when the glow style asks. Glows are
+drawn before the art: each pulse starts inside the outline (`Shape.Insets`), hidden by the opaque art.
+
+The overlay is drawn above the game's UI; `Native/WindowOcclusion` finds the game windows above the job's own gauge
+every frame, and `GaugeManager` draws the gauge once per uncovered piece (`Rendering/RectCut`), clipped to it.
 
 A new job gauge implements `Gauges/IJobGauge.cs`, gets a config field in `PluginConfiguration` and is added to the
 list in `GaugeManager`.

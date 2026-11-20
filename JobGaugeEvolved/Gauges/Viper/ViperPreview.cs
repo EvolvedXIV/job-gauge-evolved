@@ -12,10 +12,10 @@ internal static class ViperPreview
         ("Honed Reavers: Reaving Fangs", Make(0, ViperVenom.Flanksbane, honedReavers: true)),
         ("Step 2, flank venom: Hunter's Sting", Make(ViperIds.SteelFangs, ViperVenom.Flankstung, honedReavers: true)),
         ("Step 2, rear venom: Swiftskin's Sting", Make(ViperIds.ReavingFangs, ViperVenom.Hindstung, honedSteel: true)),
-        ("Flank, Flankstung: Flanksting Strike", Make(ViperIds.HuntersSting, ViperVenom.Flankstung, honedReavers: true)),
-        ("Flank, Flanksbane: Flanksbane Fang", Make(ViperIds.HuntersSting, ViperVenom.Flanksbane, honedReavers: true)),
-        ("Rear, Hindstung: Hindsting Strike", Make(ViperIds.SwiftskinsSting, ViperVenom.Hindstung, honedSteel: true)),
-        ("Rear, Hindsbane: Hindsbane Fang", Make(ViperIds.SwiftskinsSting, ViperVenom.Hindsbane, honedSteel: true)),
+        ("Flank, Flankstung: centre + Flanksting Strike", Make(ViperIds.HuntersSting, ViperVenom.Flankstung, honedReavers: true)),
+        ("Flank, Flanksbane: centre + Flanksbane Fang", Make(ViperIds.HuntersSting, ViperVenom.Flanksbane, honedReavers: true)),
+        ("Rear, Hindstung: centre + Hindsting Strike", Make(ViperIds.SwiftskinsSting, ViperVenom.Hindstung, honedSteel: true)),
+        ("Rear, Hindsbane: centre + Hindsbane Fang", Make(ViperIds.SwiftskinsSting, ViperVenom.Hindsbane, honedSteel: true)),
         ("Reawaken", Make(0, ViperVenom.Flankstung, honedSteel: true) with
         {
             ReawakenedTime = 21.4f, AnguineTribute = 3, SerpentOffering = 20, RattlingCoils = 1,

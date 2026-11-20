@@ -20,17 +20,14 @@ internal readonly struct GaugeCanvas
     private readonly ImDrawListPtr drawList;
     private readonly ArtAtlas atlas;
     private readonly int resolution;
-    private readonly bool additive;
 
-    /// <param name="additive">Add glows and colour fills to what is behind them, when the device allows it.</param>
-    public GaugeCanvas(ImDrawListPtr drawList, ArtAtlas atlas, Vector2 origin, float scale, bool additive)
+    public GaugeCanvas(ImDrawListPtr drawList, ArtAtlas atlas, Vector2 origin, float scale)
     {
         this.drawList = drawList;
         this.atlas = atlas;
         Origin = origin;
         Scale = scale;
         resolution = atlas.Layout.PickScale(scale);
-        this.additive = additive && AdditiveBlend.Available;
     }
 
     public Vector2 Origin { get; }
@@ -98,14 +95,14 @@ internal readonly struct GaugeCanvas
     /// Fills a layer's outline with a colour added to what is underneath at <paramref name="strength"/> (0.5 is like
     /// GIMP's Addition mode at 50%), so the texture shows through.
     /// </summary>
-    public void Tint(string layer, ColorSpec color, float strength, bool mirror = false, Vector2 offset = default)
+    public void Tint(string layer, ColorSpec color, float strength, bool additive, bool mirror = false, Vector2 offset = default)
     {
         strength = Math.Clamp(strength, 0f, 1f);
         if (strength <= 0f || !atlas.Shapes.TryGet(layer, mirror, out var shape)) {
             return;
         }
 
-        BeginBlend();
+        additive = BeginBlend(additive);
         var white = ImGui.GetFontTexUvWhitePixel();
         for (var k = 0; k < shape.Outlines.Length; k++) {
             var points = shape.Outlines[k];
@@ -124,31 +121,35 @@ internal readonly struct GaugeCanvas
             Strip(shape, k, color, mirror, offset, 0f, 1f / Scale, strength, 0f);
         }
 
-        EndBlend();
+        EndBlend(additive);
     }
 
     /// <summary>
-    /// A glow around a layer's outline (never over it), pulsing as <paramref name="style"/> says: it leaves the edge,
-    /// drifts out until there is a gap, fades and starts again. <paramref name="size"/> scales its width and gap
-    /// (small parts such as stones glow at half size).
+    /// A glow around a layer's outline, pulsing as <paramref name="style"/> says: it comes out from behind the shape
+    /// (drawn before the art, which hides the part still inside), drifts out until there is a gap, fades and starts
+    /// again. <paramref name="size"/> scales its width and gap (small parts such as stones glow at half size).
     /// </summary>
     public void Glow(string layer, ColorSpec color, GlowStyle style, double time, float strength = 1f, bool mirror = false,
         Vector2 offset = default, float size = 1f)
     {
-        var (gap, pulse) = GlowPulse.At(time, style.Period, style.Gap * size, style.Pulse);
+        var width = style.Width * size;
+        var (_, pulse) = GlowPulse.At(time, style.Period, style.Gap * size, style.Pulse);
         var alpha = Math.Clamp(style.Intensity * strength * pulse, 0f, 1f);
         if (alpha <= 0.004f || !atlas.Shapes.TryGet(layer, mirror, out var shape)) {
             return;
         }
 
-        var (inner, peak, outer) = GlowPulse.Band(gap, style.Width * size);
-        BeginBlend();
+        var additive = BeginBlend(style.Additive);
         for (var k = 0; k < shape.Outlines.Length; k++) {
+            // Starts inside this outline, but never further in than about half its thickness.
+            var inset = MathF.Min(shape.Insets[k], width);
+            var (gap, _) = GlowPulse.At(time, style.Period, style.Gap * size, style.Pulse, inset);
+            var (inner, peak, outer) = GlowPulse.Band(gap, width);
             Strip(shape, k, color, mirror, offset, inner, peak, 0f, alpha);
             Strip(shape, k, color, mirror, offset, peak, outer, alpha, 0f);
         }
 
-        EndBlend();
+        EndBlend(additive);
     }
 
     /// <summary>A ring between two distances outside an outline, its alpha fading from one edge to the other.</summary>
@@ -191,14 +192,18 @@ internal readonly struct GaugeCanvas
         return color.AtPosition(across, down, mirror);
     }
 
-    private void BeginBlend()
+    /// <summary>Starts additive blending if asked for and available; returns whether it did.</summary>
+    private bool BeginBlend(bool additive)
     {
-        if (additive) {
-            AdditiveBlend.Begin(drawList);
+        if (!additive || !AdditiveBlend.Available) {
+            return false;
         }
+
+        AdditiveBlend.Begin(drawList);
+        return true;
     }
 
-    private void EndBlend()
+    private void EndBlend(bool additive)
     {
         if (additive) {
             AdditiveBlend.End(drawList);

@@ -18,24 +18,26 @@ the Steel Fangs button, the right blade for the Reaving Fangs button.
 |---|---|
 | 1. Steel Fangs or Reaving Fangs | The blade of the button your Honed buff empowers: Honed Steel → left, Honed Reavers → right. Nothing without a Honed buff. |
 | 2. Hunter's Sting or Swiftskin's Sting | The blade that leads to the finisher your venom empowers: a flank venom → left (Hunter's Sting), a rear venom → right (Swiftskin's Sting). Nothing without a venom. |
-| 3. Flank finisher (after Hunter's Sting) | Both blades in the flank colour (green → yellow). The blade of the finisher your venom empowers is brighter: Flankstung → left (Flanksting Strike), Flanksbane → right (Flanksbane Fang). |
-| 3. Rear finisher (after Swiftskin's Sting) | A glow around the orb in the rear colour (red → yellow), plus the blade of the empowered finisher: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). |
+| 3. Flank finisher (after Hunter's Sting) | A glow around the orb in the flank centre colour (green → yellow), plus the blade of the finisher your venom empowers, in the flank blade colour: Flankstung → left (Flanksting Strike), Flanksbane → right (Flanksbane Fang). Only the orb without a venom. |
+| 3. Rear finisher (after Swiftskin's Sting) | A glow around the orb in the rear centre colour (red → yellow), plus the blade of the empowered finisher, in the rear blade colour: Hindstung → left (Hindsting Strike), Hindsbane → right (Hindsbane Fang). Only the orb without a venom. |
 
 The blades follow your buffs as they come and go: when they run out, the blades go dark without you casting
 anything. The game is read 20 times a second.
 
 A lit blade gets its colour added to the steel (like GIMP's Addition mode, 50% by default), so the texture shows
-through, and glows. Glows sit around the shape, never over it, and pulse: each pulse leaves the edge, drifts out
-until there is a gap, fades and starts again (every 2 seconds by default). Glows and colours are drawn by the plugin
-from each part's outline, traced from the art's transparency, and added to what is behind them.
+through, and glows. Glows sit around the shape, never over it, and pulse: each pulse comes out from behind the
+shape, so it first shows as a highlight hugging the edge, then drifts out until there is a gap, fades and starts
+again (every 2 seconds by default). Glows and colours are drawn by the plugin from each part's outline, traced from
+the art's transparency.
 
 The area-of-effect combo doesn't change the blades. The tribute stones light up only while Reawakened, with the time
 left shown above them; the rubies glow for each Rattling Coil you have. The gauge value is shown on the orb.
 
-Colours you can change: recommended blade, flank, rear, liquid, tributes and coils. Each is a single colour or a
-two-colour gradient across the shape (top to bottom, or along the blades from tip to hilt). Under *Highlights* you
-can change the pulse (on/off, seconds per pulse, the gap), the glow's width and brightness, and turn additive
-blending off.
+Colours you can change: recommended blade, flank blade, flank centre, rear blade, rear centre, liquid, tributes
+and coils. Each is a single colour or a two-colour gradient across the shape (top to bottom, or along the blades
+from tip to hilt). Two glows can be set apart: *Blade and stone glow* (blades, tributes, coils) and *Centre glow*
+(the orb at the finishers). Each has its pulse (on/off, seconds per pulse, the gap), width, brightness and additive
+blending (adds the glow to what is behind it, like GIMP's Addition mode; turn it off to paint it over instead).
 
 ## Installing
 
@@ -61,11 +63,14 @@ In the settings window:
 - **Preview** shows a gauge with made-up values on any job, in or out of combat, either cycling through every combo
   state or showing the one you pick.
 - Every job has its own section with an on/off box: size, position mode (free, or *Follow HUD Layout*: where the
-  game's own gauge is, scaled like it, plus your offset), "only in combat", hiding the game's own gauge, and the
-  job's colours.
+  game's own gauge is, scaled like it, plus your offset), "only in combat", hiding behind game windows, hiding the
+  game's own gauge, and the job's colours.
+- **Windows that never cover gauges** (under *General*): addon names, comma separated, for a game window that hides
+  the gauge when it shouldn't. `/jge debug` lists the windows covering the gauge right now.
 
-Gauges are drawn by the plugin on top of the game's UI. They are hidden in PvP, cutscenes and GPose, and when you
-hide the UI.
+Gauges are drawn by the plugin on top of the game's UI, but by default the parts under a game window (inventory,
+character, retainers, tooltips, menus, …) are left out, so the gauge looks behind them like the game's own gauge.
+The windows are checked every frame. Gauges are hidden in PvP, cutscenes and GPose, and when you hide the UI.
 
 ## Building
 
@@ -80,8 +85,8 @@ dotnet test JobGaugeEvolved.Tests -c Release
 The plugin ends up in `JobGaugeEvolved/bin/x64/Release/`. To load it in game, add that folder under
 *Dalamud Settings → Experimental → Dev Plugin Locations*.
 
-The tests cover the parts that do not need the game (the Viper combo rules, colours, the art layout, positioning
-and settings) and run on any platform.
+The tests cover the parts that do not need the game (the Viper combo rules, colours, the art layout, outlines and
+glow pulses, window cut-outs, positioning and settings) and run on any platform.
 
 ### Gauge art
 
@@ -128,8 +133,8 @@ access token (or GitHub App token) with **Contents: Read and write** on `Evolved
 |----------------------------------|----------------------------------------------------------------------|
 | `JobGaugeEvolved/Gauges/`        | Picking the gauge for your job, the overlay window and positioning   |
 | `JobGaugeEvolved/Gauges/Viper/`  | The Viper gauge: game state, combo rules, drawing, settings          |
-| `JobGaugeEvolved/Rendering/`     | Art layout, textures, tinted drawing and gauge text                  |
-| `JobGaugeEvolved/Native/`        | Hiding the game's own gauges                                         |
+| `JobGaugeEvolved/Rendering/`     | Art layout, textures, glows, tinted drawing, window cut-outs, text   |
+| `JobGaugeEvolved/Native/`        | Hiding the game's own gauges, finding the game windows that cover them |
 | `JobGaugeEvolved/Windows/`       | Settings and debug windows                                           |
 | `JobGaugeEvolved/Configuration/` | Saved settings                                                       |
 | `art/`, `scripts/build_art.py`   | Gauge art sources and the scripts that render and light them         |
